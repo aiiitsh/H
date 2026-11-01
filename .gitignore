@@ -14,3 +14,7 @@ docs/SPEC.md
 
 # Local-only life plan photos (uploaded to the account, never committed)
 private-life/
+
+# Claude Code data API key (local only) and data exports
+.claude-api.json
+private-data/
