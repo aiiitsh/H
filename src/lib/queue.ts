@@ -86,25 +86,42 @@ async function run(op: Op): Promise<void> {
   if (res.error) throw res.error
 }
 
-/** Fire a write. Optimistic: the caller has already updated local state. */
-export async function write(op: Op): Promise<void> {
-  if (demoMode) return
-  writes++
+// Writes go out one at a time, in the order they were made. Sent together, a workout's sets could reach
+// the database before the workout row they point to, and the whole batch of sets was rejected.
+let chain: Promise<unknown> = Promise.resolve()
+const SEND_TIMEOUT_MS = 20000
+
+/** A request that hangs is treated like a dropped connection: queued and retried, so later writes aren't stuck. */
+function timed<T>(p: Promise<T>): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error('timeout')), SEND_TIMEOUT_MS)
+    p.then((v) => { clearTimeout(t); resolve(v) }, (e) => { clearTimeout(t); reject(e) })
+  })
+}
+
+async function send(op: Op): Promise<void> {
   if (queued > 0) {
-    // Keep order: something is already waiting, so this waits behind it.
+    // Keep order: something is already waiting offline, so this waits behind it.
     await enqueue(op)
     void flush()
     return
   }
-  inflight++; emit()
   try {
-    await run(op)
+    await timed(run(op))
   } catch (e: any) {
     if (isNetworkError(e)) await enqueue(op)
     else onError(e?.message || 'Save failed')
-  } finally {
-    inflight--; emit()
   }
+}
+
+/** Fire a write. Optimistic: the caller has already updated local state. */
+export function write(op: Op): Promise<void> {
+  if (demoMode) return Promise.resolve()
+  writes++
+  inflight++; emit()
+  const p = chain.then(() => send(op)).finally(() => { inflight--; emit() })
+  chain = p.catch(() => {})
+  return p
 }
 
 async function enqueue(op: Op) {

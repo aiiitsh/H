@@ -62,7 +62,7 @@ export interface SwimPlan {
 }
 
 export interface Settings {
-  /** Saturdays (local dates) the full life plan was read */
+  /** Sundays (local dates) the full life plan was read */
   plan_reads?: string[]
   /** daily protein target, grams */
   protein_g?: number

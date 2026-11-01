@@ -1,6 +1,6 @@
 import { diffSettings, mergeSettings } from './settingsmerge'
 import { amountSummary, daysDone, planReadStatus, quranStreak } from './qurandaily'
-import { buildMonthText, buildText } from './export'
+import { buildMonthText, buildText, targetLines } from './export'
 import { nextCard, today as dailyToday } from './songdaily'
 import { byCategory, byWhat, cleanTag } from './focustags'
 import { describe, expect, it } from 'vitest'
@@ -428,18 +428,39 @@ describe('Quran daily check-in', () => {
   })
 })
 
-describe('Saturday plan read', () => {
+describe('Sunday plan read (reset day)', () => {
   const base = (reads?: string[]): Data => ({ appState: { settings: { plan_reads: reads } } as any, targets: {}, quran: [], logs: [], focus: [], workouts: [], sets: [], habits: [], reviews: [] })
-  it('shows on Saturdays only', () => {
-    expect(dayPlan(base(), '2026-10-31').find((i) => i.key === 'plan_read')).toMatchObject({ done: false, action: { kind: 'life' } })
-    expect(dayPlan(base(), '2026-10-30').find((i) => i.key === 'plan_read')).toBeUndefined()
-    expect(dayPlan(base(['2026-10-31']), '2026-10-31').find((i) => i.key === 'plan_read')).toMatchObject({ done: true })
+  it('shows on Sundays only', () => {
+    expect(dayPlan(base(), '2026-11-01').find((i) => i.key === 'plan_read')).toMatchObject({ done: false, action: { kind: 'life' } })
+    expect(dayPlan(base(), '2026-10-31').find((i) => i.key === 'plan_read')).toBeUndefined()
+    expect(dayPlan(base(['2026-11-01']), '2026-11-01').find((i) => i.key === 'plan_read')).toMatchObject({ done: true })
   })
   it('reports done, missed or not yet per week', () => {
-    expect(planReadStatus(['2026-10-24'], '2026-10-19', '2026-10-28')).toBe('done')
-    expect(planReadStatus([], '2026-10-19', '2026-10-28')).toBe('missed')
+    expect(planReadStatus(['2026-10-25'], '2026-10-19', '2026-10-28')).toBe('done')
+    expect(planReadStatus(['2026-10-24'], '2026-10-19', '2026-10-28')).toBe('missed')
     expect(planReadStatus([], '2026-10-26', '2026-10-28')).toBe('not yet')
-    expect(buildText(base(['2026-10-24']), '2026-10-19')).toContain('Saturday "Read my full plan": done.')
+    expect(buildText(base(['2026-10-25']), '2026-10-19')).toContain('Sunday "Read my full plan": done.')
+  })
+})
+
+describe('next week from last week', () => {
+  const base = (): Data => ({ appState: null, targets: {}, quran: [], logs: [], focus: [], workouts: [], sets: [], habits: [], reviews: [] })
+  const wo = (d: string, day: 'A' | 'B' | 'C' | 'D'): Workout => ({ id: d + day, user_id: 'u', local_date: d, day_code: day, started_at: `${d}T21:00:00Z`, ended_at: `${d}T22:30:00Z`, skill_key: null, skill_done: false, skill_minutes: null, ended_early: false })
+  it('legs on Sunday: legs wait until Friday, rest between A and B', () => {
+    const data = { ...base(), workouts: [wo('2026-10-26', 'A'), wo('2026-10-27', 'B'), wo('2026-11-01', 'C')] }
+    const p = generateWeekPlan(data, '2026-11-02')
+    expect(p.days.map((s) => (s.kind === 'gym' ? s.day : s.kind))).toEqual(['A', 'rest', 'B', 'rest', 'C', 'D', 'swim'])
+    expect(p.why.join(' ')).toContain('Not trained last week: Day D.')
+  })
+  it('otherwise the usual week', () => {
+    const p = generateWeekPlan({ ...base(), workouts: [wo('2026-10-26', 'A'), wo('2026-10-27', 'C')] }, '2026-11-02')
+    expect(p.days.map((s) => (s.kind === 'gym' ? s.day : s.kind))).toEqual(['A', 'C', 'rest', 'B', 'rest', 'D', 'swim'])
+  })
+  it('the summary lists what each day will ask for', () => {
+    const data = { ...base(), targets: { incline_curl: { user_id: 'u', exercise_key: 'incline_curl', weight_lb: 20, reps: 11, last_feel: 'good', times_done: 3, calibrated: true } as any } }
+    const lines = targetLines(data).join('\n')
+    expect(lines).toContain('Incline curl 3×20 lb × 11 (last: good)')
+    expect(lines).toContain('Day C')
   })
 })
 

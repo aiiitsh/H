@@ -39,20 +39,40 @@ export const WEEK_TEMPLATE: PlanSlot[] = [
   { kind: 'rest' }, { kind: 'gym', day: 'D' }, { kind: 'swim' },
 ]
 
-/** Build the plan for the week starting `ws` (a Monday). */
+/**
+ * Legs (Day C) on the weekend just before: give them until Friday. Upper days first, with a rest day
+ * between A and B (both hit arms), then legs Friday and the size day Saturday (different muscles).
+ */
+const AFTER_WEEKEND_LEGS: PlanSlot[] = [
+  { kind: 'gym', day: 'A' }, { kind: 'rest' }, { kind: 'gym', day: 'B' }, { kind: 'rest' },
+  { kind: 'gym', day: 'C' }, { kind: 'gym', day: 'D' }, { kind: 'swim' },
+]
+
+/** Build the plan for the week starting `ws` (a Monday), from what last week actually had. */
 export function generateWeekPlan(data: Data, ws: string): WeekPlan {
   const prev = addDays(ws, -7)
   const prevDays = Array.from({ length: 7 }, (_, i) => addDays(prev, i))
-  const sessions = data.workouts.filter((w) => w.local_date >= prev && w.local_date < ws).length
+  const lastWeek = data.workouts.filter((w) => w.local_date >= prev && w.local_date < ws)
+  const sessions = lastWeek.length
   const cardio = data.logs.filter((l) => l.type === 'cardio' && l.local_date >= prev && l.local_date < ws)
   const restDays = prevDays.map((d) => dayLoad(data, d)).filter((x) => x < 1).length
+  const weekendLegs = lastWeek.some((w) => w.day_code === 'C' && w.local_date >= addDays(ws, -2))
+  const missed = (['A', 'B', 'C', 'D'] as const).filter((d) => !lastWeek.some((w) => w.day_code === d))
 
-  const days: PlanSlot[] = WEEK_TEMPLATE.map((s) => ({ ...s }))
+  const days: PlanSlot[] = (weekendLegs ? AFTER_WEEKEND_LEGS : WEEK_TEMPLATE).map((s) => ({ ...s }))
   const why: string[] = []
-  why.push(`Last week: ${sessions} gym session${sessions === 1 ? '' : 's'}, ${cardio.length} cardio, ${restDays} real rest day${restDays === 1 ? '' : 's'}.`)
+  why.push(`Last week: ${sessions} gym session${sessions === 1 ? '' : 's'}${lastWeek.length ? ` (${lastWeek.map((w) => w.day_code).join(', ')})` : ''}, ${cardio.length} cardio, ${restDays} real rest day${restDays === 1 ? '' : 's'}.`)
+  if (missed.length) why.push(`Not trained last week: Day ${missed.join(', Day ')}. All four are in this week.`)
   why.push('4 gym days: upper body 3× a week (A, B, D) because that is where you want size; legs once (C) for strength and knee alignment, not size.')
-  why.push('Weekdays after work (snack at 16:00, gym around 17:45). Saturday gym and Sunday swim in the morning, before any weekend work.')
-  why.push('Wednesday and Friday are full rest days. Recovery is where you get bigger.')
+  if (weekendLegs) {
+    why.push('Legs (Day C) were on the weekend, so they get until Friday: A Monday, B Wednesday, C Friday, D Saturday. A rest day between A and B because both work the arms.')
+    why.push('Weekdays after work (snack at 16:00, gym around 17:45). Saturday gym and Sunday swim in the morning, before any weekend work.')
+    why.push('Tuesday and Thursday are full rest days. Recovery is where you get bigger.')
+  } else {
+    why.push('Weekdays after work (snack at 16:00, gym around 17:45). Saturday gym and Sunday swim in the morning, before any weekend work.')
+    why.push('Wednesday and Friday are full rest days. Recovery is where you get bigger.')
+  }
+  why.push('Weights and reps for every exercise come from your last session of that day (they update after each workout).')
   why.push('Sunday swim is slow and long: technique and posture, distance goes up 100 m a week. No sprints.')
   why.push('All stretching is inside the warm-ups and cool-downs. Nothing extra on rest days.')
   why.push('Squash, hikes and runs are not planned. If you really want one, it replaces the swim, never stacks on top.')

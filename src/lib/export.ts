@@ -1,5 +1,5 @@
 // Week and month summaries for the review with Claude (plain text + JSON).
-import { DAYS, EX, GROUPS, GOALS, STRETCH_LABEL, isSecs } from '../data/program'
+import { DAYS, DAY_ORDER, EX, GROUPS, GOALS, STRETCH_LABEL, isSecs } from '../data/program'
 import { surahLatin, surahName } from '../data/surahs'
 import type { Data } from './store'
 import { focusCoach, habitStats, insights, weekStats, type WeekStats } from './stats'
@@ -95,11 +95,26 @@ export function buildJson(data: Data, start: string) {
     },
     quran: w.quran.map((e) => ({ date: e.local_date, surah: e.surah, name: surahName(e.surah), kind: e.kind })),
     quran_checkin: { days: w.quranCheckinDays, entries: w.quranCheckins.map((l) => ({ date: l.local_date, amount: l.data.amount })) },
-    plan_read_saturday: w.planRead,
+    plan_read_sunday: w.planRead,
     french: { minutes: w.frenchMin, days: w.frenchDays, unit: data.appState?.french_unit, units_finished: w.unitsFinished },
     insights: ins.map((i) => ({ attention: i.bad, text: i.text })),
     focus_coach: coach.map((i) => i.text),
   }
+}
+
+/** What the app will ask for next time, per gym day (targets are saved after every session). */
+export function targetLines(data: Data): string[] {
+  return DAY_ORDER.map((d) => {
+    const parts = DAYS[d].keys.flatMap((k) => {
+      const e = EX[k]
+      if (!e || e.kind === 'prep' || e.kind === 'skill' || e.kind === 'stretch') return []
+      const t = data.targets[k]
+      const reps = t?.reps ?? e.lo
+      const load = e.kind === 'weighted' ? `${t?.weight_lb ?? e.start} lb × ${reps}` : `${reps}${isSecs(e) ? ' s' : ''}`
+      return [`${e.short} ${e.sets}×${load}${t?.last_feel ? ` (last: ${t.last_feel})` : ''}`]
+    })
+    return `  - Day ${d} ${DAYS[d].name}: ${parts.join('; ')}`
+  })
 }
 
 export function buildText(data: Data, start: string): string {
@@ -133,6 +148,9 @@ export function buildText(data: Data, start: string): string {
     for (const c of changes) L.push(`  - ${c.name}: ${c.from} → ${c.to}${c.dir > 0 ? ' ↑' : c.dir < 0 ? ' ↓' : ''}`)
   }
 
+  h('Next session targets')
+  L.push(...targetLines(data))
+
   h('Cardio & posture')
   L.push(`Next swim: ${swimTarget(data)} m slow (technique, no sprints).`)
   L.push(`Protein: ${w.proteinGoal} g reached on ${w.proteinDays}/7 days, average ${w.proteinAvg} g on tracked days.`)
@@ -155,7 +173,7 @@ export function buildText(data: Data, start: string): string {
 
   h('Quran daily check-in')
   L.push(`Done on ${w.quranCheckinDays}/7 days${w.quranCheckins.length ? `: ${amountSummary(w.quranCheckins)}` : ''}. Streak now: ${quranStreak(data.logs)} days.`)
-  L.push(`Saturday "Read my full plan": ${w.planRead}.`)
+  L.push(`Sunday "Read my full plan": ${w.planRead}.`)
 
   h('Quran surahs & French (no targets)')
   L.push(w.quran.length ? w.quran.map((e) => `${fmtDay(e.local_date)} ${e.kind} ${surahLatin(e.surah)} (${e.surah})`).join('\n') : 'No surah entries.')
@@ -214,7 +232,7 @@ export function buildMonthText(data: Data, today = localDate()): string {
     `${w.quran.length}`,
     w.planRead,
   ].join(' | ')
-  L.push('Week | Gym | Hard | Arms | Core | Pull/Push | Legs | Cardio | Protein days | Focus | Longest | Lost focus | Quran days | Surah entries | Plan read (Sat)')
+  L.push('Week | Gym | Hard | Arms | Core | Pull/Push | Legs | Cardio | Protein days | Focus | Longest | Lost focus | Quran days | Surah entries | Plan read (Sun)')
   L.push('--- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | ---')
   W.forEach((w, i) => L.push(row(`${fmtDay(w.start)}${i === 3 ? ' (last full)' : ''}`, w)))
   L.push(row(`${fmtDay(cur)} so far (${soFar}/7 days)`, now))
@@ -279,6 +297,8 @@ export function buildMonthText(data: Data, today = localDate()): string {
     L.push('', 'Targets over the month (first → now):')
     for (const c of changes) L.push(`  - ${c.name}: ${c.from} → ${c.to}${c.dir > 0 ? ' ↑' : c.dir < 0 ? ' ↓' : ''}`)
   }
+  L.push('', 'Next session targets (saved after every session, so these are current even if a session’s sets are missing):')
+  L.push(...targetLines(data))
 
   // Cardio
   h('Swim, cardio & protein')

@@ -43,13 +43,13 @@ export function amountSummary(logs: Log[]): string {
   return QURAN_AMOUNTS.filter(([k]) => c.has(k)).map(([k, label]) => `${label} ×${c.get(k)}`).join(', ')
 }
 
-// ---------- weekly plan read (Saturdays) ----------
+// ---------- weekly plan read (Sundays, the reset day) ----------
 
-/** The Saturday of the Mon–Sun week starting `start`. */
-export const saturdayOf = (start: string) => addDays(start, 5)
+/** The Sunday of the Mon–Sun week starting `start`. */
+export const sundayOf = (start: string) => addDays(start, 6)
 
 export function planReadStatus(reads: string[] | undefined, start: string, today = localDate()): 'done' | 'missed' | 'not yet' {
-  const sat = saturdayOf(start)
-  if (reads?.includes(sat)) return 'done'
-  return sat < today ? 'missed' : 'not yet'
+  const sun = sundayOf(start)
+  if (reads?.includes(sun)) return 'done'
+  return sun < today ? 'missed' : 'not yet'
 }

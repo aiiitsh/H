@@ -261,7 +261,7 @@ export function logQuranCheckin(amount: QuranAmount) {
   addLog('quran', { amount }, `Quran · ${amountLabel(amount)}`)
 }
 
-/** Saturday: the full life plan was opened and read. */
+/** Sunday: the full life plan was opened and read. */
 export function markPlanRead(d = localDate()) {
   const reads = get().appState?.settings.plan_reads ?? []
   if (!reads.includes(d)) patchSettings({ plan_reads: [...reads, d].slice(-104) })

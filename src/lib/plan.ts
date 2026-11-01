@@ -224,11 +224,11 @@ export function dayPlan(data: Data, d = localDate()): PlanItem[] {
     done: q.length > 0, action: { kind: 'sheet', sheet: 'quranDaily' },
   })
 
-  // Saturdays: read the whole life plan once a week.
-  if (dow(d) === 6) {
+  // Sundays (reset day): read the whole life plan once a week.
+  if (dow(d) === 0) {
     const read = !!data.appState?.settings?.plan_reads?.includes(d)
     items.push({
-      key: 'plan_read', icon: 'life', title: 'Read my full plan', sub: read ? '✓ Read today' : 'Every Saturday · opens the Life screen',
+      key: 'plan_read', icon: 'life', title: 'Read my full plan', sub: read ? '✓ Read today' : 'Every Sunday · opens the Life screen',
       done: read, action: { kind: 'life' },
     })
   }
