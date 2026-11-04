@@ -421,7 +421,7 @@ input[type=date].field { color-scheme: dark; }
 .flash-face.back { transform: rotateY(180deg); }
 .flash.flipped .flash-face.front { transform: rotateY(-180deg); }
 .flash.flipped .flash-face.back { transform: rotateY(0); }
-.flash-fr { font: 700 26px/1.25 var(--f-display); color: var(--text-strong); text-shadow: var(--glow-text-soft); }
+.flash-fr { font: 700 26px/1.25 var(--f-display); color: var(--text-strong); text-shadow: var(--glow-text-soft); white-space: pre-line; }
 .flash-en { font: 500 20px/1.35 var(--f-body); color: var(--text-strong); }
 .flash-src { position: absolute; left: 0; right: 0; bottom: 16px; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); pointer-events: none; }
 .flash-words { width: 100%; text-align: left; border-top: 1px solid var(--divider); }
