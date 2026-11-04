@@ -215,13 +215,13 @@ export const SONGS: Song[] = [
   {
     id: 'coco-acai',
     title: 'Coco Açaï',
-    artist: 'B-NØM (Pulkra & Amine)',
+    artist: "Willy L'ancien",
     cards: [
       {
         fr: "Sous popo, le flash, c'est coco açaï",
         en: 'High on “popo”, the rush tastes like coconut-açaí. (Best guess, see the note.)',
         context: 'A party / getting-high line: whatever he’s on, the hit feels or tastes sweet and fruity, like a coconut-açaí drink. Coco may also wink at cocaine. 🥥🍇',
-        note: 'Not 100% sure about this one. Popo isn’t a slang word I can confirm, and the lyrics site writes the line differently: it starts “Encore un flash…” (“one more flash…”). Check it against the song before trusting popo.\n'
+        note: 'Not 100% sure about this one: popo isn’t a slang word I can confirm. The next line brags about Piatella (hash), so sous most likely means “high on” here.\n'
           + 'Sous + a substance = “high on / under the influence of”: sous alcool, sous médocs.',
         words: [
           { fr: 'sous', en: 'under. With a substance it means “high on”: il est sous alcool = he’s under the influence of alcohol.' },
@@ -230,7 +230,6 @@ export const SONGS: Song[] = [
           { fr: "c'est", en: 'it is. In speech it often comes with no article: c’est coco açaï = it’s (a) coconut-açaí (thing).' },
           { fr: 'coco', en: 'coconut (noix de coco). Slang: cocaine. Also a pet name: mon coco = my darling.' },
           { fr: 'açaï', en: 'açaí, the purple Brazilian berry. Said “a-sa-ï”: ç = s sound, ï = the i is said on its own.' },
-          { fr: 'encore un', en: 'one more / another one (from the lyric site’s version): encore un café = another coffee.' },
         ],
       },
       {
