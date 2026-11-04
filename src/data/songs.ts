@@ -233,6 +233,34 @@ export const SONGS: Song[] = [
           { fr: 'encore un', en: 'one more / another one (from the lyric site’s version): encore un café = another coffee.' },
         ],
       },
+      {
+        fr: "J'ai du Piatella, j'en veux pas d'ta caille",
+        en: 'I’ve got Piatella, I don’t want your “caille”.',
+        context: 'He’s bragging that he has top-quality hash, so he doesn’t need whatever you’re offering. 🍃',
+        note: 'Piatella is a premium kind of hash. Caille is less clear: literally it means a quail (the bird), and ma caille is a pet name. Here it most likely means “your stuff”, your lower-quality product, but that’s a guess from context.\n'
+          + 'J’en veux pas d’ta caille: the en and the de ta both point to the same thing. Spoken French often doubles it like this for emphasis. Proper: Je ne veux pas de ta caille.',
+        words: [
+          { fr: "J'ai du", en: 'I have some. Du = de + le, the “some” article: j’ai du pain = I have (some) bread.' },
+          { fr: 'Piatella', en: 'a premium type of hash (pressed cannabis resin).' },
+          { fr: "j'en veux pas", en: 'I don’t want any (of it). En = of it / some. Ne is dropped again.' },
+          { fr: "d'ta", en: 'de ta, of your. After a negative, “some” becomes de: je veux du café → je veux pas de café.' },
+          { fr: 'une caille', en: 'a quail. Slang meaning here is unclear, probably “your stuff”.' },
+        ],
+      },
+      {
+        fr: "Ils aiment l'odeur du fric, ont le nez plein de bails de (Mmh)",
+        en: 'They love the smell of money, their noses are full of… stuff (mmh).',
+        context: 'He says it twice. The “mmh” replaces a word he doesn’t say out loud. A nose full of something hints at cocaine, which ties back to coco. 💸👃',
+        note: 'Ont is missing its ils: Ils aiment… (et ils) ont le nez plein. Rap drops repeated subjects to keep the rhythm.\n'
+          + 'L’odeur du fric is a pun: money has a “smell”, and the nose is full of something else.',
+        words: [
+          { fr: "Ils aiment l'odeur", en: 'they love the smell. Une odeur = a smell.' },
+          { fr: 'du fric', en: 'of money. Le fric = slang for money, like la plata or l’oseille.' },
+          { fr: 'ont le nez plein de', en: '(they) have their nose full of. French uses le nez, not “their nose”, for body parts.' },
+          { fr: 'des bails', en: 'stuff, things, deals, usually shady. Very common slang: c’est quoi ce bail ? = what’s this thing / what’s going on?' },
+          { fr: '(Mmh)', en: 'a hum in place of the word he leaves out.' },
+        ],
+      },
     ],
   },
 ]
