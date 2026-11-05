@@ -11,6 +11,7 @@ import { localDate, weekStart } from './lib/time'
 import { GlowDefs, Toasts } from './components/ui'
 import { Icon } from './components/Icon'
 import { DailySong } from './components/DailySong'
+import { StreakMilestone } from './components/StreakMilestone'
 import { PomodoroTicker } from './components/Pomodoro'
 import { QuickSheets, useSheet } from './components/QuickLog'
 import { Login } from './screens/Login'
@@ -33,6 +34,7 @@ const TABS: { r: Route; icon: string; label: string }[] = [
   { r: 'work', icon: 'tab-work', label: 'Work' },
   { r: 'streak', icon: 'tab-streak', label: 'Streak' },
   { r: 'review', icon: 'tab-review', label: 'Review' },
+  { r: 'life', icon: 'life', label: 'Life' },
 ]
 
 function useRoute(): Route {
@@ -142,7 +144,6 @@ function Shell() {
         <div className="brand">AHMED</div>
         {TABS.map((t) => <TabLink key={t.r} t={t} on={route === t.r} />)}
         <div style={{ flex: 1 }} />
-        <TabLink t={{ r: 'life', icon: 'life', label: 'Life' }} on={route === 'life'} />
         <TabLink t={{ r: 'settings', icon: 'gear', label: 'Settings' }} on={route === 'settings'} />
       </nav>
       <Screens route={route}>{(r) => (loaded && hasApp ? SCREENS[r]() : screen)}</Screens>
@@ -151,6 +152,7 @@ function Shell() {
       </nav>
       {loaded && (active || finished) && <SessionRunner />}
       <QuickSheets />
+      {loaded && hasApp && <StreakMilestone />}
       {loaded && hasApp && <DailySong />}
       <PomodoroTicker />
       <Toasts />
@@ -165,8 +167,8 @@ const SCREENS: Record<Route, () => ReactNode> = {
 
 // ---------- native-feel navigation: slide transitions + swipe between tabs ----------
 
-const ORDER: Route[] = ['home', 'body', 'learn', 'work', 'streak', 'review']
-const rank = (r: Route) => (r === 'settings' ? 99 : r === 'life' ? 98 : ORDER.indexOf(r))
+const ORDER: Route[] = ['home', 'body', 'learn', 'work', 'streak', 'review', 'life']
+const rank = (r: Route) => (r === 'settings' ? 99 : ORDER.indexOf(r))
 type Layer = { r: Route; id: number; cls: string }
 
 function Screens({ route, children }: { route: Route; children: (r: Route) => ReactNode }) {

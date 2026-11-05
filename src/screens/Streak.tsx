@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 import { useStore, set } from '../lib/store'
 import { habitStats } from '../lib/stats'
 import { addDays, fmtDay, localDate, weekStart } from '../lib/time'
-import { deleteHabit, hashPin, saveHabit } from '../lib/actions'
+import { deleteHabit, hashPin, patchSettings, saveHabit } from '../lib/actions'
+import { GOAL_DAYS, goalRun, weeksAndDays, type GoalRun } from '../lib/streakgoal'
 import { Segmented } from '../components/QuickLog'
-import { Label, Stepper } from '../components/ui'
+import { Bar, Label, Stepper } from '../components/ui'
 import { Icon } from '../components/Icon'
 
 const WD = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
@@ -47,11 +48,42 @@ function PinLock({ hash }: { hash: string }) {
   )
 }
 
+/** Countdown to 30 clean days, with the weeks ticked off. */
+function GoalPanel({ run, today }: { run: GoalRun; today: string }) {
+  const done = run.days >= GOAL_DAYS
+  return (
+    <section className="panel stack" style={{ gap: 14 }}>
+      <div className="row between">
+        <Label>30-day goal</Label>
+        <span className="label">{done ? 'Done' : `Day ${run.days} of ${GOAL_DAYS}`}</span>
+      </div>
+      <div className="stack" style={{ gap: 4, alignItems: 'center' }}>
+        <span className="hero-word" style={{ fontSize: 56 }}>{run.left}</span>
+        <Label>{run.left === 1 ? 'day left' : 'days left'}</Label>
+      </div>
+      <Bar value={Math.min(run.days, GOAL_DAYS)} max={GOAL_DAYS} />
+      <div className="grid2" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+        {[1, 2, 3, 4].map((w) => <span key={w} className={`chip sm${run.weeks >= w ? ' on' : ' dashed'}`} style={{ justifyContent: 'center' }}>{run.weeks >= w ? '✓ ' : ''}Week {w}</span>)}
+      </div>
+      <span className="small muted" style={{ textAlign: 'center' }}>
+        {done ? 'All 30 days done.' : `${weeksAndDays(run.days)} passed · ${weeksAndDays(run.left)} left · reached ${fmtDay(run.finish)}`}
+      </span>
+      <label className="row between" style={{ gap: 12 }}>
+        <span className="label">Counting from</span>
+        <input className="field" type="date" max={today} value={run.start > today ? today : run.start} style={{ minHeight: 36, width: 'auto' }}
+          onChange={(e) => e.target.value && patchSettings({ streak_goal_start: e.target.value })} />
+      </label>
+    </section>
+  )
+}
+
 function StreakBody() {
   const habits = useStore((s) => s.habits)
   const streakStart = useStore((s) => s.appState?.settings?.streak_start)
+  const goalStart = useStore((s) => s.appState?.settings?.streak_goal_start)
   const today = localDate()
   const st = useMemo(() => habitStats(habits, today, streakStart), [habits, today, streakStart])
+  const run = useMemo(() => goalRun(habits, goalStart, today), [habits, goalStart, today])
   const byDate = useMemo(() => Object.fromEntries(habits.map((h) => [h.entry_date, h])), [habits])
 
   const [date, setDate] = useState(today)
@@ -95,15 +127,15 @@ function StreakBody() {
       <div className="cols c2">
         <div className="col">
           <section className="panel deep stack" style={{ alignItems: 'center', textAlign: 'center', gap: 10, padding: 28 }}>
-            {!st.hasAny ? (
+            {!st.hasAny && !goalStart ? (
               <>
                 <div className="hero-word" style={{ fontSize: 64 }}>0</div>
                 <p className="muted">Your streak starts today.</p>
               </>
             ) : (
               <>
-                <div className="hero-word" style={{ fontSize: 76 }}>{st.current}</div>
-                <Label>{st.current === 1 ? 'day' : 'days'}</Label>
+                <div className="hero-word" style={{ fontSize: 76 }}>{run.days}</div>
+                <Label>{run.days === 1 ? 'day' : 'days'}</Label>
                 <div className="row" style={{ gap: 26, marginTop: 8 }}>
                   <div className="stack" style={{ gap: 3 }}><span className="big-num" style={{ fontSize: 20 }}>{st.best}</span><Label>Best streak</Label></div>
                   <div className="stack" style={{ gap: 3 }}><span className="big-num" style={{ fontSize: 20 }}>{st.cleanDays}<span className="muted" style={{ fontSize: 13 }}> / {st.days}</span></span><Label>Clean days · 4 wks</Label></div>
@@ -111,6 +143,8 @@ function StreakBody() {
               </>
             )}
           </section>
+
+          <GoalPanel run={run} today={today} />
 
           <section className="panel stack" style={{ gap: 14 }}>
             <Label>Log</Label>

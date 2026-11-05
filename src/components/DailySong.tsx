@@ -4,12 +4,14 @@ import { patchSettings } from '../lib/actions'
 import { findCard, today } from '../lib/songdaily'
 import type { SongDaily } from '../lib/types'
 import { CardLesson } from './SongCards'
+import { usePendingMilestone } from './StreakMilestone'
 import { Sheet } from './ui'
 
 /** Shown on app open until "Read" is tapped that day. Reopens when the app comes back after a minute away. */
 export function DailySong() {
   const saved = useStore((s) => s.appState?.settings?.song_daily)
   const busy = useStore((s) => !!s.appState?.active_session)
+  const { milestone } = usePendingMilestone()
   const [open, setOpen] = useState(false)
   const t = today(saved)
   const entry = t && findCard(t.key)
@@ -34,7 +36,8 @@ export function DailySong() {
     return () => document.removeEventListener('visibilitychange', vis)
   }, [])
 
-  if (!t || !entry || busy) return null
+  // A streak congratulations comes first; this opens right after it's closed.
+  if (!t || !entry || busy || milestone) return null
   const answer = (status: SongDaily['status']) => {
     patchSettings({ song_daily: { ...t, status } })
     setOpen(false)

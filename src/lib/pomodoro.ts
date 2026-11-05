@@ -1,17 +1,13 @@
 // Pomodoro: timed focus and break rounds. It works from end times, so it stays right while the phone sleeps.
 import { localDate } from './time'
 
-export const POMO_PRESETS = [
-  { work: 25, brk: 5, long: 15 },
-  { work: 50, brk: 10, long: 20 },
-]
+export const POMO = { work: 25, brk: 5, long: 15 }
 /** A long break after this many finished rounds. */
 export const POMO_ROUNDS = 4
 
 export type PomoPhase = 'idle' | 'work' | 'break' | 'over'
 
 export interface Pomo {
-  preset: number
   phase: PomoPhase
   endsAt: number | null
   /** length of the current phase, ms */
@@ -21,13 +17,13 @@ export interface Pomo {
   day: string
 }
 
-export const freshPomo = (day = localDate()): Pomo => ({ preset: 0, phase: 'idle', endsAt: null, total: 0, done: 0, day })
+export const freshPomo = (day = localDate()): Pomo => ({ phase: 'idle', endsAt: null, total: 0, done: 0, day })
 
 export const doneOn = (p: Pomo, day: string) => (p.day === day ? p.done : 0)
 
 export function startWork(p: Pomo, now: number): Pomo {
   const day = localDate(now)
-  const total = POMO_PRESETS[p.preset].work * 60000
+  const total = POMO.work * 60000
   return { ...p, phase: 'work', endsAt: now + total, total, done: doneOn(p, day), day }
 }
 
@@ -35,8 +31,7 @@ export function startWork(p: Pomo, now: number): Pomo {
 export function startBreak(p: Pomo, at: number, finished: boolean): Pomo {
   const day = localDate(at)
   const done = doneOn(p, day) + (finished ? 1 : 0)
-  const { brk, long } = POMO_PRESETS[p.preset]
-  const total = (finished && done % POMO_ROUNDS === 0 ? long : brk) * 60000
+  const total = (finished && done % POMO_ROUNDS === 0 ? POMO.long : POMO.brk) * 60000
   return { ...p, phase: 'break', endsAt: at + total, total, done, day }
 }
 

@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { create } from 'zustand'
 import { focusBreak, focusResume, focusStop, startFocus } from '../lib/actions'
 import { categoriesOf } from '../lib/focustags'
-import { POMO_PRESETS, POMO_ROUNDS, advancePomo, doneOn, freshPomo, startBreak, startWork, stopPomo, type Pomo } from '../lib/pomodoro'
+import { POMO, POMO_ROUNDS, advancePomo, doneOn, freshPomo, startBreak, startWork, stopPomo, type Pomo } from '../lib/pomodoro'
 import { beep, keepAwake, unlockAudio } from '../lib/rest'
 import { get } from '../lib/store'
 import { fmtStopwatch, localDate } from '../lib/time'
@@ -14,7 +14,7 @@ const KEY = 'ahmed-pomodoro'
 function loadPomo(): Pomo {
   try {
     const p = JSON.parse(localStorage.getItem(KEY) ?? 'null')
-    if (p && POMO_PRESETS[p.preset] && typeof p.phase === 'string') return p
+    if (p && typeof p.phase === 'string') return p
   } catch { /* storage blocked */ }
   return freshPomo()
 }
@@ -102,11 +102,7 @@ export function Pomodoro({ tag, onStart }: { tag: FocusTag; onStart: () => void 
       </div>
       {!active && (
         <>
-          <div className="row" style={{ gap: 8 }}>
-            {POMO_PRESETS.map((x, i) => (
-              <button key={x.work} className={`chip${p.preset === i ? ' on' : ''}`} onClick={() => save({ ...p, preset: i })}>{x.work} min · {x.brk} break</button>
-            ))}
-          </div>
+          <span className="small muted">{POMO.work} min focus · {POMO.brk} min break</span>
           <button className="btn btn-outline btn-caps btn-block" onClick={next}>Start pomodoro</button>
         </>
       )}

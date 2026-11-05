@@ -4,6 +4,7 @@ import { buildMonthText, buildText, targetLines } from './export'
 import { nextCard, today as dailyToday } from './songdaily'
 import { byCategory, byWhat, cleanTag } from './focustags'
 import { describe, expect, it } from 'vitest'
+import { goalRun, milestoneOf, pendingMilestone, weeksAndDays } from './streakgoal'
 import { POMO_ROUNDS, advancePomo, freshPomo, startBreak, startWork } from './pomodoro'
 import { progress } from './progression'
 import { addDays, localDate, weekStart, dow, hhmm, typedSpan, zonedIso, dayTimeIso } from './time'
@@ -541,9 +542,28 @@ describe('pomodoro', () => {
     const y = { ...freshPomo('2026-11-04'), done: 3 }
     expect(startWork(y, t0).done).toBe(0)
   })
-  it('the 50-minute preset uses its own lengths', () => {
-    const w = startWork({ ...freshPomo('2026-11-05'), preset: 1 }, t0)
-    expect(w.total).toBe(50 * min)
-    expect(advancePomo(w, t0 + 51 * min).next.total).toBe(10 * min)
+})
+
+describe('30-day goal', () => {
+  const e = (d: string, count = 1): HabitEntry => ({ id: d, user_id: 'u', entry_date: d, count, porn: false, reason: null, created_at: '', updated_at: '' })
+  const today = '2026-11-05'
+  it('counts yesterday and today from the chosen start', () => {
+    expect(goalRun([e('2026-10-20')], '2026-11-04', today)).toMatchObject({ start: '2026-11-04', days: 2, left: 28, weeks: 0, finish: '2026-12-03' })
+  })
+  it('never counts past a logged time, and logging one starts it over', () => {
+    expect(goalRun([e('2026-11-04')], '2026-11-01', today)).toMatchObject({ start: '2026-11-05', days: 1 })
+    expect(goalRun([e(today)], '2026-11-01', today)).toMatchObject({ days: 0, left: 30 })
+    expect(goalRun([e('2026-11-04', 0)], '2026-11-01', today).days).toBe(5) // a logged 0 is a clean day
+  })
+  it('congratulates each week once, then at day 30', () => {
+    expect([6, 7, 13, 14, 21, 28, 29, 30, 45].map(milestoneOf)).toEqual([0, 7, 7, 14, 21, 28, 28, 30, 30])
+    const run = goalRun([], '2026-10-30', today) // day 7
+    expect(pendingMilestone(run, undefined)).toBe(7)
+    expect(pendingMilestone(run, { start: run.start, m: 7 })).toBeNull()
+    expect(pendingMilestone(run, { start: '2026-09-01', m: 28 })).toBe(7) // an old streak's weeks don't count
+    expect(pendingMilestone(goalRun([], '2026-11-01', today), undefined)).toBeNull()
+  })
+  it('says what is left', () => {
+    expect([23, 7, 2, 0].map(weeksAndDays)).toEqual(['3 weeks 2 days', '1 week', '2 days', '0 days'])
   })
 })

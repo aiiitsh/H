@@ -71,6 +71,10 @@ export interface Settings {
   swim?: SwimPlan
   /** Streak counts clean days from here when there are no earlier entries. */
   streak_start?: string
+  /** 30-day goal: count clean days from here (a logged time after it starts the count over) */
+  streak_goal_start?: string
+  /** the last week's congratulations already shown */
+  streak_milestone?: { start: string; m: number }
   /** Weekly plans by week start (Monday; older plans are keyed by Saturday). */
   week_plans?: Record<string, WeekPlan>
   /** To-do list. */
