@@ -1,5 +1,5 @@
 // Ahmed OS service worker: cache the app shell; never cache Supabase (network only).
-const CACHE = 'ahmed-os-v1'
+const CACHE = 'ahmed-os-v2'
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png']
 
 self.addEventListener('install', (e) => {
@@ -17,11 +17,13 @@ self.addEventListener('fetch', (e) => {
   if (req.method !== 'GET') return
   const url = new URL(req.url)
   if (url.hostname.endsWith('supabase.co') || url.hostname.endsWith('supabase.in')) return
+  // The app asking whether a new version is out: straight to the network.
+  if (req.cache === 'no-store') return
 
-  // Navigations: network first, fall back to the cached shell (offline).
+  // Navigations: network first (checked with the server, so a new deploy shows at once), cached shell when offline.
   if (req.mode === 'navigate') {
     e.respondWith(
-      fetch(req)
+      fetch(req.url, { cache: 'no-cache' })
         .then((res) => { const copy = res.clone(); caches.open(CACHE).then((c) => c.put('./index.html', copy)); return res })
         .catch(() => caches.match('./index.html')),
     )

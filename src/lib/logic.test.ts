@@ -4,6 +4,7 @@ import { buildMonthText, buildText, targetLines } from './export'
 import { nextCard, today as dailyToday } from './songdaily'
 import { byCategory, byWhat, cleanTag } from './focustags'
 import { describe, expect, it } from 'vitest'
+import { bundleOf, shouldReload } from './update'
 import { goalRun, milestoneOf, pendingMilestone, weeksAndDays } from './streakgoal'
 import { POMO_ROUNDS, advancePomo, freshPomo, startBreak, startWork } from './pomodoro'
 import { progress } from './progression'
@@ -565,5 +566,19 @@ describe('30-day goal', () => {
   })
   it('says what is left', () => {
     expect([23, 7, 2, 0].map(weeksAndDays)).toEqual(['3 weeks 2 days', '1 week', '2 days', '0 days'])
+  })
+})
+
+describe('staying on the latest deploy', () => {
+  it('finds the code file in a page', () => {
+    expect(bundleOf('<script type="module" crossorigin src="/ahmed-os/assets/index-Du_noehp.js"></script>')).toBe('assets/index-Du_noehp.js')
+    expect(bundleOf('<html></html>')).toBeNull()
+  })
+  it('reloads once for a new build, never in a loop', () => {
+    expect(shouldReload('assets/index-a.js', 'assets/index-b.js', null)).toBe(true)
+    expect(shouldReload('assets/index-a.js', 'assets/index-a.js', null)).toBe(false)
+    expect(shouldReload('assets/index-a.js', 'assets/index-b.js', 'assets/index-b.js')).toBe(false)
+    expect(shouldReload(null, 'assets/index-b.js', null)).toBe(false)
+    expect(shouldReload('assets/index-a.js', null, null)).toBe(false)
   })
 })
