@@ -267,11 +267,12 @@ export function markPlanRead(d = localDate()) {
   if (!reads.includes(d)) patchSettings({ plan_reads: [...reads, d].slice(-104) })
 }
 
-export function focusBreak(reason: 'break' | 'lost_focus') {
+/** `at`: when the block really ended, if that was earlier than now (a pomodoro round that ran out while the phone slept). */
+export function focusBreak(reason: 'break' | 'lost_focus', at = nowIso()) {
   const prev = get().appState?.focus
   if (!prev || prev.mode !== 'focus') return
-  const block = closeBlock(reason)
-  patchApp({ focus: { mode: 'break', kind: 'work', started_at: nowIso(), ...tagFrom(prev) }, ...tagPatch(prev, block) })
+  const block = closeBlock(reason, at)
+  patchApp({ focus: { mode: 'break', kind: 'work', started_at: at, ...tagFrom(prev) }, ...tagPatch(prev, block) })
   toast(reason === 'break' ? 'Break' : 'Lost focus · resting', undoFocus(prev, block))
 }
 

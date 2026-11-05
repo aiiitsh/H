@@ -11,6 +11,7 @@ import { localDate, weekStart } from './lib/time'
 import { GlowDefs, Toasts } from './components/ui'
 import { Icon } from './components/Icon'
 import { DailySong } from './components/DailySong'
+import { PomodoroTicker } from './components/Pomodoro'
 import { QuickSheets, useSheet } from './components/QuickLog'
 import { Login } from './screens/Login'
 import { Home } from './screens/Home'
@@ -151,6 +152,7 @@ function Shell() {
       {loaded && (active || finished) && <SessionRunner />}
       <QuickSheets />
       {loaded && hasApp && <DailySong />}
+      <PomodoroTicker />
       <Toasts />
     </div>
   )

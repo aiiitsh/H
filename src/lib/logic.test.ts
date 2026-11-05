@@ -4,6 +4,7 @@ import { buildMonthText, buildText, targetLines } from './export'
 import { nextCard, today as dailyToday } from './songdaily'
 import { byCategory, byWhat, cleanTag } from './focustags'
 import { describe, expect, it } from 'vitest'
+import { POMO_ROUNDS, advancePomo, freshPomo, startBreak, startWork } from './pomodoro'
 import { progress } from './progression'
 import { addDays, localDate, weekStart, dow, hhmm, typedSpan, zonedIso, dayTimeIso } from './time'
 import { habitStats, groupSets } from './stats'
@@ -512,5 +513,37 @@ describe('settings saves merge instead of overwriting', () => {
     const server = { focus_tags: { b1: { cat: 'Study' }, b2: { cat: 'Farq' } } }
     const out = save(server, before, { focus_tags: { b1: { cat: 'Afflo' }, b3: { cat: 'Planning' } } })
     expect(out.focus_tags).toEqual({ b1: { cat: 'Afflo' }, b2: { cat: 'Farq' }, b3: { cat: 'Planning' } })
+  })
+})
+
+describe('pomodoro', () => {
+  const t0 = Date.parse('2026-11-05T15:00:00Z')
+  const min = 60000
+  it('a finished round starts the break from when it ended, even if noticed late', () => {
+    const w = startWork(freshPomo('2026-11-05'), t0)
+    expect(advancePomo(w, t0 + 24 * min).next).toBe(w)
+    const r = advancePomo(w, t0 + 26 * min)
+    expect(r.workEndedAt).toBe(t0 + 25 * min)
+    expect(r.next).toMatchObject({ phase: 'break', done: 1, endsAt: t0 + 30 * min })
+  })
+  it('never rolls back into focus by itself', () => {
+    const r = advancePomo(startWork(freshPomo('2026-11-05'), t0), t0 + 90 * min)
+    expect(r).toMatchObject({ workEndedAt: t0 + 25 * min, breakOver: true })
+    expect(r.next).toMatchObject({ phase: 'over', endsAt: null, done: 1 })
+  })
+  it('long break after every 4th finished round; skipped rounds do not count', () => {
+    const three = { ...startWork(freshPomo('2026-11-05'), t0), done: POMO_ROUNDS - 1 }
+    expect(startBreak(three, t0, true)).toMatchObject({ done: POMO_ROUNDS, total: 15 * min })
+    expect(startBreak(three, t0, false)).toMatchObject({ done: POMO_ROUNDS - 1, total: 5 * min })
+    expect(startBreak({ ...three, done: 0 }, t0, false).total).toBe(5 * min)
+  })
+  it('the count starts over on a new day', () => {
+    const y = { ...freshPomo('2026-11-04'), done: 3 }
+    expect(startWork(y, t0).done).toBe(0)
+  })
+  it('the 50-minute preset uses its own lengths', () => {
+    const w = startWork({ ...freshPomo('2026-11-05'), preset: 1 }, t0)
+    expect(w.total).toBe(50 * min)
+    expect(advancePomo(w, t0 + 51 * min).next.total).toBe(10 * min)
   })
 })

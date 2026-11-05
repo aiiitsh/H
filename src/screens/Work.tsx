@@ -11,6 +11,7 @@ import type { FocusBlock, FocusTag } from '../lib/types'
 import { byCategory, byWhat, tagLabel, tagOf } from '../lib/focustags'
 import { TagEditor, TagPicker } from '../components/FocusTag'
 import { TasksPanel } from '../components/Tasks'
+import { Pomodoro } from '../components/Pomodoro'
 
 export function Work() {
   const focus = useStore((s) => s.appState?.focus)
@@ -80,6 +81,8 @@ export function Work() {
           {focus && <RunningEditor key={focus.started_at} onClose={() => setEditing(false)} />}
         </Sheet>
       </section>
+
+      <Pomodoro tag={tag} onStart={() => setTag({})} />
 
       <TasksPanel />
 
