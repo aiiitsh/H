@@ -3,6 +3,7 @@ import { create } from 'zustand'
 import { focusBreak, focusResume, focusStop, startFocus } from '../lib/actions'
 import { categoriesOf } from '../lib/focustags'
 import { POMO, POMO_ROUNDS, advancePomo, doneOn, freshPomo, startBreak, startWork, stopPomo, type Pomo } from '../lib/pomodoro'
+import { askNotifications, notify, notifyBlocked } from '../lib/notify'
 import { beep, keepAwake, unlockAudio } from '../lib/rest'
 import { get } from '../lib/store'
 import { fmtStopwatch, localDate } from '../lib/time'
@@ -37,15 +38,26 @@ function tick(now = Date.now()) {
   // Saved as ending when the round did, even if the phone was asleep and this runs later.
   if (workEndedAt != null) focusBreak('break', new Date(workEndedAt).toISOString())
   save(next)
-  beep()
+  unlockAudio()
+  beep(6)
+  if (next.phase === 'break') void notify('Round done', `Take a ${next.total / 60000} min break.`)
+  else void notify('Break’s over', 'Time for the next round.')
 }
 
 export function PomodoroTicker() {
   useEffect(() => {
-    const t = window.setInterval(() => tick(), 1000)
+    // A worker's timer keeps its pace in a background tab, where the page's own timers slow to once a minute.
+    let worker: Worker | null = null
+    let t: number | undefined
+    try {
+      worker = new Worker(URL.createObjectURL(new Blob(['setInterval(() => postMessage(0), 1000)'], { type: 'text/javascript' })))
+      worker.onmessage = () => tick()
+    } catch {
+      t = window.setInterval(() => tick(), 1000)
+    }
     const vis = () => document.visibilityState === 'visible' && tick()
     document.addEventListener('visibilitychange', vis)
-    return () => { window.clearInterval(t); document.removeEventListener('visibilitychange', vis) }
+    return () => { worker?.terminate(); window.clearInterval(t); document.removeEventListener('visibilitychange', vis) }
   }, [])
   return null
 }
@@ -76,6 +88,7 @@ export function Pomodoro({ tag, onStart }: { tag: FocusTag; onStart: () => void 
 
   const next = () => {
     unlockAudio()
+    askNotifications()
     beginFocus(tag)
     onStart()
     save(startWork(usePomo.getState(), Date.now()))
@@ -104,6 +117,7 @@ export function Pomodoro({ tag, onStart }: { tag: FocusTag; onStart: () => void 
         <>
           <span className="small muted">{POMO.work} min focus · {POMO.brk} min break</span>
           <button className="btn btn-outline btn-caps btn-block" onClick={next}>Start pomodoro</button>
+          {notifyBlocked() && <span className="small muted">Notifications are blocked for this app, so you’ll only get the beep. Turn them on in your device settings.</span>}
         </>
       )}
       {(p.phase === 'work' || p.phase === 'break') && (

@@ -40,3 +40,15 @@ self.addEventListener('fetch', (e) => {
     )
   }
 })
+
+// Tapping a notification opens the app on the Work tab.
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close()
+  e.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+      const open = list[0]
+      if (open) return open.focus()
+      return self.clients.openWindow('./#/work')
+    }),
+  )
+})
