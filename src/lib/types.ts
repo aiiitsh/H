@@ -64,6 +64,8 @@ export interface SwimPlan {
 export interface Settings {
   /** Sundays (local dates) the full life plan was read */
   plan_reads?: string[]
+  /** 1st-of-the-month dates the monthly check-in with Claude was done */
+  month_checkins?: string[]
   /** daily protein target, grams */
   protein_g?: number
   show_streak_in_review?: boolean

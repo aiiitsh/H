@@ -582,3 +582,15 @@ describe('staying on the latest deploy', () => {
     expect(shouldReload('assets/index-a.js', null, null)).toBe(false)
   })
 })
+
+describe('daily targets', () => {
+  const base = (checkins?: string[]): Data => ({ appState: { settings: { month_checkins: checkins } } as any, targets: {}, quran: [], logs: [], focus: [], workouts: [], sets: [], habits: [], reviews: [] })
+  it('monthly check-in with Claude on the 1st only', () => {
+    expect(dayPlan(base(), '2026-12-01').find((i) => i.key === 'month_checkin')).toMatchObject({ done: false, action: { kind: 'monthCheckin' } })
+    expect(dayPlan(base(['2026-12-01']), '2026-12-01').find((i) => i.key === 'month_checkin')!.done).toBe(true)
+    expect(dayPlan(base(), '2026-12-02').find((i) => i.key === 'month_checkin')).toBeUndefined()
+  })
+  it('no separate stretches item: they are inside the gym session', () => {
+    expect(dayPlan(base(), '2026-11-09').find((i) => i.key === 'routine')).toBeUndefined()
+  })
+})

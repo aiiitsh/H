@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useStore } from '../lib/store'
 import { weekStats, reminders } from '../lib/stats'
 import { fmtDay, fmtDur, fmtStopwatch, hhmm, localDate, minutesBetween, weekStart } from '../lib/time'
-import { deleteEntry, deleteWorkout, focusBreak, focusResume, focusStop, markPlanRead, startSession } from '../lib/actions'
+import { deleteEntry, deleteWorkout, focusBreak, focusResume, focusStop, markMonthCheckin, markPlanRead, startSession } from '../lib/actions'
 import { describeLog } from '../lib/describe'
 import { DAYS, EX, GOALS } from '../data/program'
 import { surahLatin } from '../data/surahs'
@@ -162,6 +162,7 @@ function PlanRow({ it }: { it: PlanItem }) {
     if (it.action?.kind === 'sheet') openSheet(it.action.sheet)
     else if (it.action?.kind === 'session') startSession(it.action.day)
     else if (it.action?.kind === 'life') { markPlanRead(); location.hash = '#/life' }
+    else if (it.action?.kind === 'monthCheckin') markMonthCheckin()
   }
   return (
     <button className="li" style={{ width: '100%', textAlign: 'left', opacity: it.done ? 0.55 : 1, alignItems: 'flex-start' }} disabled={!it.action} onClick={run}>

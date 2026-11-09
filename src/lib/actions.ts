@@ -262,6 +262,12 @@ export function logQuranCheckin(amount: QuranAmount) {
 }
 
 /** Sunday: the full life plan was opened and read. */
+/** 1st of the month: the monthly check-in with Claude is done. */
+export function markMonthCheckin(d = localDate()) {
+  const done = get().appState?.settings.month_checkins ?? []
+  if (!done.includes(d)) patchSettings({ month_checkins: [...done, d].slice(-36) })
+}
+
 export function markPlanRead(d = localDate()) {
   const reads = get().appState?.settings.plan_reads ?? []
   if (!reads.includes(d)) patchSettings({ plan_reads: [...reads, d].slice(-104) })

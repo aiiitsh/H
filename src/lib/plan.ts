@@ -14,6 +14,7 @@ export type PlanAction =
   | { kind: 'session'; day: DayCode }
   | { kind: 'sheet'; sheet: 'swim' | 'routine' | 'quran' | 'quranDaily' | 'french' | 'focus' | 'hike' | 'cardio' | 'protein' }
   | { kind: 'life' }
+  | { kind: 'monthCheckin' }
 
 export interface PlanItem {
   key: string
@@ -169,16 +170,8 @@ export function dayPlan(data: Data, d = localDate()): PlanItem[] {
   const logs = onDay(data.logs, d)
   const items: PlanItem[] = []
 
-  // Stretches live inside the gym session. Rest days are real rest: nothing to do.
+  // Stretches are part of every gym session (warm-up and cool-down), so they're not a separate item.
   const slot = slotOn(data, d)
-  const trainedToday = data.workouts.some((w) => w.local_date === d)
-  if (trainedToday || slot?.kind === 'gym') {
-    items.push({
-      key: 'routine', icon: 'hollow', title: 'Stretches', sub: 'In your warm-up and cool-down today',
-      why: trainedToday ? undefined : 'Part of the gym session: no extra stretching needed.',
-      done: trainedToday,
-    })
-  }
 
   // Swim on its planned day (slow and long). Anything else only shows once it's logged.
   const cardioToday = logs.filter((l) => isCardio(l))
@@ -230,6 +223,15 @@ export function dayPlan(data: Data, d = localDate()): PlanItem[] {
     items.push({
       key: 'plan_read', icon: 'life', title: 'Read my full plan', sub: read ? '✓ Read today' : 'Every Sunday · opens the Life screen',
       done: read, action: { kind: 'life' },
+    })
+  }
+
+  // 1st of the month: the monthly check-in with Claude.
+  if (d.slice(8) === '01') {
+    const done = !!data.appState?.settings?.month_checkins?.includes(d)
+    items.push({
+      key: 'month_checkin', icon: 'tab-review', title: 'Monthly check-in with Claude',
+      sub: done ? '✓ Done' : 'Ask Claude for your monthly review, then tap', done, action: { kind: 'monthCheckin' },
     })
   }
 
