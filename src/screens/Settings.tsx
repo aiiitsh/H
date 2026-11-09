@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { patchSettings, setCategories, setPin } from '../lib/actions'
 import { categoriesOf } from '../lib/focustags'
 import { LifeData } from '../components/LifeData'
+import { MentorRules } from '../components/MentorRules'
 import { toast } from '../lib/toast'
 import { DeleteX, Label, Toggle } from '../components/ui'
 import { download } from './Review'
@@ -88,6 +89,8 @@ export function Settings() {
       <FocusCategories />
 
       <LifeData />
+
+      <MentorRules />
 
       <section className="panel stack" style={{ gap: 14 }}>
         <Label>Learn</Label>

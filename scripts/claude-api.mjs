@@ -2,6 +2,8 @@
 // Claude Code's own access to Ahmed OS data (see supabase/migrations/007_claude_api.sql). No sign-in needed.
 //   node scripts/claude-api.mjs export [days] [--out file.json]   all data for the last N days (default 35)
 //   node scripts/claude-api.mjs settings '{"key": value}'        set settings keys (merged into the rest)
+//   node scripts/claude-api.mjs mentor                           print your private mentor rules (see 008_mentor_notes.sql)
+//   node scripts/claude-api.mjs mentor-set file.md               save/replace the mentor rules from a local file
 // Reads .claude-api.json next to package.json (gitignored): { "url": "...", "anon": "sb_publishable_...", "key": "..." }
 import { readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -30,7 +32,14 @@ if (cmd === 'export') {
 } else if (cmd === 'settings') {
   const settings = await rpc('claude_patch_settings', { p_patch: JSON.parse(arg) })
   console.log(`saved: ${Object.keys(JSON.parse(arg)).join(', ')} (settings now has ${Object.keys(settings).length} keys)`)
+} else if (cmd === 'mentor') {
+  const text = await rpc('claude_get_mentor', {})
+  console.log(text ?? '(no mentor rules saved yet: run mentor-set <file>)')
+} else if (cmd === 'mentor-set') {
+  if (!arg) { console.log('usage: mentor-set <file.md>'); process.exit(1) }
+  const r = await rpc('claude_set_mentor', { p_content: readFileSync(arg, 'utf8') })
+  console.log(`saved mentor rules (${r.saved_chars} characters)`)
 } else {
-  console.log('usage: node scripts/claude-api.mjs export [days] [--out file.json] | settings \'{"key": value}\'')
+  console.log('usage: node scripts/claude-api.mjs export [days] [--out file.json] | settings \'{"key": value}\' | mentor | mentor-set <file>')
   process.exit(1)
 }
