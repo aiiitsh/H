@@ -264,7 +264,7 @@ input[type=date].field { color-scheme: dark; }
 .seg-btn.on { background: #fff; color: #000; box-shadow: 0 0 14px rgba(255,255,255,.35); }
 .seg-btn.on.red { background: var(--red); color: #fff; box-shadow: 0 0 14px var(--red-glow); }
 
-/* red = porn (the one non-monochrome signal, asked for explicitly) */
+/* red = the one non-monochrome signal, asked for explicitly */
 .red-text { color: var(--red) !important; text-shadow: 0 0 10px var(--red-glow) !important; }
 .chip.red { background: var(--red); border-color: var(--red); color: #fff; box-shadow: 0 0 12px var(--red-glow); }
 .heat .c.p { background: #5a1414; border-color: #7a1c1c; }

@@ -153,7 +153,7 @@ function StreakBody() {
               <Stepper value={count} sub="how many times" onMinus={() => setCount((c) => Math.max(0, c - 1))} onPlus={() => setCount((c) => c + 1)} />
             </div>
             {count > 0 && (
-              <Segmented value={porn} options={[['no', 'No porn'], ['yes', 'Porn']]} onChange={setPorn} warn="yes" />
+              <Segmented value={porn} options={[['no', 'Without it'], ['yes', 'With it']]} onChange={setPorn} warn="yes" />
             )}
             <textarea className="field" placeholder="Reason or context (optional)" value={reason} onChange={(e) => setReason(e.target.value)} />
             <button className="btn btn-filled btn-big btn-caps" onClick={save}>{byDate[date] ? 'Update' : 'Save'}</button>
@@ -182,14 +182,14 @@ function StreakBody() {
               </div>
               <span className="label" style={{ fontSize: 8 }}>4+</span>
               <span className="heat" style={{ gridTemplateRows: '1fr', gridAutoColumns: '10px', marginLeft: 10 }}><span className="c h2 p" /></span>
-              <span className="label" style={{ fontSize: 8 }}>porn</span>
+              <span className="label" style={{ fontSize: 8 }}>it</span>
             </div>
             {sel && (
               <div className="panel" style={{ padding: 14 }}>
                 <div className="row between">
                   <span className="strong">{fmtDay(sel)}</span>
                   <span className="row" style={{ gap: 8 }}>
-                    {selEntry?.porn && selEntry.count > 0 && <span className="chip sm red">porn</span>}
+                    {selEntry?.porn && selEntry.count > 0 && <span className="chip sm red">it</span>}
                     <span className="mono strong">{selEntry ? `${selEntry.count}×` : 'no entry'}</span>
                   </span>
                 </div>
@@ -209,7 +209,7 @@ function StreakBody() {
               <div className="li"><span className="grow">Times</span><span className="mono strong">{st.times}</span></div>
               <div className="li"><span className="grow">Average per week</span><span className="mono strong">{st.avgPerWeek.toFixed(1)}</span></div>
               <div className="li"><span className="grow">Each week · oldest → now</span><span className="mono strong">{st.perWeek.join(' · ')}</span></div>
-              {st.pornDays > 0 && <div className="li"><span className="grow">Days with porn</span><span className="mono strong red-text">{st.pornDays}</span></div>}
+              {st.pornDays > 0 && <div className="li"><span className="grow">Days with it</span><span className="mono strong red-text">{st.pornDays}</span></div>}
               {st.topWeekday != null && <div className="li"><span className="grow">Most common day</span><span className="mono strong">{WD[st.topWeekday]}</span></div>}
             </div>
           </section>
