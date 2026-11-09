@@ -13,7 +13,7 @@ const TABLES = ['app_state', 'exercise_targets', 'workouts', 'workout_sets', 'sl
 
 /** Every table, oldest first. A table that errors (e.g. migration not run yet) is noted instead of failing the export. */
 async function collectAll() {
-  const out: Record<string, unknown> = { app: 'Ahmed OS', exported_at: new Date().toISOString(), timezone: 'America/Toronto' }
+  const out: Record<string, unknown> = { app: 'H', exported_at: new Date().toISOString(), timezone: 'America/Toronto' }
   const errors: Record<string, string> = {}
   for (const t of TABLES) {
     const { data, error } = await supabase.from(t).select('*').range(0, 49999)
@@ -34,7 +34,7 @@ export function Settings() {
   const exportAll = async () => {
     try {
       const out = await collectAll()
-      download(`ahmed-os-all-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(out, null, 2), 'application/json')
+      download(`h-all-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(out, null, 2), 'application/json')
     } catch (e: any) {
       toast(e?.message || 'Export failed', undefined, 'error')
     }
@@ -112,7 +112,7 @@ export function Settings() {
 
       <section className="panel stack" style={{ gap: 8 }}>
         <Label>About</Label>
-        <p className="small">Ahmed OS · v0.2 · weights in lb · America/Toronto · weeks run Saturday → Friday.</p>
+        <p className="small">H · v0.2 · weights in lb · America/Toronto · weeks run Saturday → Friday.</p>
         <p className="small muted">Not medical advice. See a physio for pain.</p>
         <Diagnostics />
       </section>

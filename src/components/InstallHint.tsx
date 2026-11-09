@@ -25,7 +25,7 @@ export function InstallHint({ always }: { always?: boolean }) {
     <section className="panel row" style={{ gap: 12, padding: 14, alignItems: 'flex-start' }}>
       <Icon name="download" size={20} />
       <div className="stack grow" style={{ gap: 4 }}>
-        <span className="strong small">Install Ahmed OS</span>
+        <span className="strong small">Install H</span>
         <span className="muted small" style={{ lineHeight: 1.45 }}>
           Tap <b>Share</b> → <b>Add to Home Screen</b>, then open it from the icon. It stays signed in and opens full screen like an app.
         </span>

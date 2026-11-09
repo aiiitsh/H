@@ -26,7 +26,7 @@ export function Home() {
       <header className="home-head">
         <div className="stack" style={{ gap: 8 }}>
           <Label>{fmtDay(today)} · {hhmm(now)}</Label>
-          <h1 className="hero-word">AHMED</h1>
+          <h1 className="hero-word">H</h1>
         </div>
         <div className="row" style={{ gap: 6 }}>
           {pending > 0 && <span className="sync-dot" title="Syncing…" aria-label="Syncing" />}

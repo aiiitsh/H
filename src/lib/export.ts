@@ -65,7 +65,7 @@ export function buildJson(data: Data, start: string) {
     return { date: d, minutes: Math.round(bl.reduce((a, b) => a + minutesBetween(b.started_at, b.ended_at), 0)), blocks: bl.map((b) => ({ start: hhmm(b.started_at), min: Math.round(minutesBetween(b.started_at, b.ended_at)), end_reason: b.end_reason, category: tagOf(st, b.id).cat ?? null, what: tagOf(st, b.id).what ?? null })) }
   })
   return {
-    app: 'Ahmed OS',
+    app: 'H',
     week_start: w.start, week_end: w.end, generated_at: new Date().toISOString(), timezone: 'America/Toronto', units: 'lb',
     training: {
       sessions: w.workouts.length, by_day: w.byDayCode,
@@ -121,7 +121,7 @@ export function buildText(data: Data, start: string): string {
   const { w, ins, coach, changes } = buildWeek(data, start)
   const L: string[] = []
   const h = (t: string) => L.push('', `## ${t}`)
-  L.push(`AHMED OS · WEEK ${fmtDay(w.start)} → ${fmtDay(w.end)} (Mon–Sun, America/Toronto, weights in lb)`)
+  L.push(`H · WEEK ${fmtDay(w.start)} → ${fmtDay(w.end)} (Mon–Sun, America/Toronto, weights in lb)`)
   L.push('Please review: weights to raise/lower, muscle balance, core and posture work, cardio (swims/hikes), and give me 3 concrete tips to focus longer next week based on my training.')
 
   h('Insights (app rules)')
@@ -214,7 +214,7 @@ export function buildMonthText(data: Data, today = localDate()): string {
   const L: string[] = []
   const h = (t: string) => L.push('', `## ${t}`)
 
-  L.push(`AHMED OS · MONTH ${fmtDay(starts[0])} → ${fmtDay(addDays(cur, -1))} + this week so far (Mon–Sun weeks, America/Toronto, weights in lb)`)
+  L.push(`H · MONTH ${fmtDay(starts[0])} → ${fmtDay(addDays(cur, -1))} + this week so far (Mon–Sun weeks, America/Toronto, weights in lb)`)
   L.push('Please compare my last full week with the weeks before it, point out trends (good and bad), and help me plan the coming week Mon–Sun: gym days (A/C/B/D), swim and rest, weights to raise or lower, APT/posture work (no glute growth), 3 concrete tips to focus longer, and how my focus time splits across categories (Afflo, Study, Planning, Farq…) and what to shift to be more productive.')
   L.push(`Program: Mon A = pull + arms (muscle-up), Tue C = legs, core + knees, Thu B = push + arms (planche), Sat D = size day, Sun slow swim, Wed/Fri rest. Goals: 4 sessions, arms 12–20 sets, protein ${proteinGoal(data)} g on 5+ days, focus 15 h.`)
 

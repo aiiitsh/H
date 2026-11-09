@@ -141,7 +141,7 @@ function Shell() {
     <div className="app">
       <GlowDefs />
       <nav className="sidebar" aria-label="Main">
-        <div className="brand">AHMED</div>
+        <div className="brand">H</div>
         {TABS.map((t) => <TabLink key={t.r} t={t} on={route === t.r} />)}
         <div style={{ flex: 1 }} />
         <TabLink t={{ r: 'settings', icon: 'gear', label: 'Settings' }} on={route === 'settings'} />
@@ -262,7 +262,7 @@ function useShortcuts() {
 function Splash({ inline }: { inline?: boolean }) {
   return (
     <div style={{ minHeight: inline ? '60vh' : '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div className="hero-word pulse-text">AHMED</div>
+      <div className="hero-word pulse-text">H</div>
     </div>
   )
 }
@@ -270,7 +270,7 @@ function Splash({ inline }: { inline?: boolean }) {
 function SetupNeeded() {
   return (
     <div className="main"><div className="screen"><div className="page"><div className="hero-light" />
-      <div className="hero-word">AHMED</div>
+      <div className="hero-word">H</div>
       <div className="panel stack">
         <div className="title">Connect Supabase</div>
         <p className="muted">Copy <span className="mono">.env.example</span> to <span className="mono">.env.local</span> and set

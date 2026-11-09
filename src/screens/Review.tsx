@@ -34,7 +34,7 @@ export function Review() {
       await navigator.clipboard.writeText(text)
       toast('Month summary copied · paste it to Claude')
     } catch {
-      download(`ahmed-os-month-${weekStart()}.txt`, text, 'text/plain')
+      download(`h-month-${weekStart()}.txt`, text, 'text/plain')
       toast('Clipboard blocked · saved as a file instead')
     }
     saveReview()

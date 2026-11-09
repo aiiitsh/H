@@ -40,7 +40,7 @@ export function Login() {
       <div className="page" style={{ maxWidth: 420, paddingTop: '12vh' }}>
         <div className="hero-light" />
         <div style={{ textAlign: 'center' }}>
-          <div className="hero-word" style={{ fontSize: 48 }}>AHMED</div>
+          <div className="hero-word" style={{ fontSize: 48 }}>H</div>
           <Label className="dim" >Operating system · v1</Label>
         </div>
         <InstallHint always />
