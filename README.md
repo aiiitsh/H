@@ -76,6 +76,10 @@ Places where the spec left room and the build picked one reading:
 - The Home **Streak** tile opens a quick sheet (today, count 1, Save) that skips the PIN, since it shows no history. The Streak tab itself is PIN-locked when the PIN is on.
 - Muscle-up / Planche "Leveled up" sets the level name to `Lvl N` until you rename it in Settings.
 
+### Mentor rules
+
+Private rules for Claude live in the `mentor_notes` table (`supabase/migrations/008_mentor_notes.sql`), never in the code. Edit or copy them in **Settings → Mentor rules**; Claude Code loads them with `node scripts/claude-api.mjs mentor`.
+
 ### Phase 2 (not built)
 
 Monthly side posture photo (private `posture` storage bucket).
