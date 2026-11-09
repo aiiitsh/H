@@ -1,4 +1,4 @@
-// Dev-only preview: `npm run dev` then open /ahmed-os/?demo. Local sample data, no Supabase.
+// Dev-only preview: `npm run dev` then open /H/?demo. Local sample data, no Supabase.
 import { EXERCISES, seedTarget } from '../data/program'
 import type { Data } from './store'
 import { addDays, localDate } from './time'

@@ -12,7 +12,7 @@ Personal training / sleep / focus / learning tracker. One responsive PWA for pho
    It creates every table, the indexes, RLS (`user_id = auth.uid()` on all tables), and adds the tables to the realtime publication.
 2. **Project Settings → API**: copy the **Project URL** and the **anon public key**. Never use the `service_role` key here.
 3. **Authentication → URL configuration**: set Site URL and add a redirect URL for
-   `https://<github-username>.github.io/ahmed-os/` (and `http://localhost:5173/ahmed-os/` for local dev).
+   `https://<github-username>.github.io/H/` (and `http://localhost:5173/H/` for local dev).
 4. Create your account: either open the app and tap **First time? Create account**, or use **Authentication → Users → Add user**.
 5. Then **turn off new sign-ups** (Authentication → Providers/Settings → disable "Allow new users to sign up").
 
@@ -25,10 +25,10 @@ The repo also has a project-scoped Supabase MCP server in [`.mcp.json`](.mcp.jso
 ```bash
 npm install
 cp .env.example .env.local   # fill in VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
-npm run dev                  # http://localhost:5173/ahmed-os/
+npm run dev                  # http://localhost:5173/H/
 ```
 
-**Demo mode (no Supabase):** open `http://localhost:5173/ahmed-os/?demo` while `npm run dev` is running. The app loads sample data locally and writes go nowhere. Demo mode is dev-only; it's compiled out of production builds.
+**Demo mode (no Supabase):** open `http://localhost:5173/H/?demo` while `npm run dev` is running. The app loads sample data locally and writes go nowhere. Demo mode is dev-only; it's compiled out of production builds.
 
 ```bash
 npm test          # progression, week boundaries, streak and muscle-credit logic
@@ -38,7 +38,7 @@ npm run icons     # regenerate the PWA icons (white glowing "A" on black)
 
 ### 3. Deploy (GitHub Pages)
 
-1. Create the public repo `ahmed-os` on GitHub and push `main`.
+1. Create the public repo `H` on GitHub and push `main`.
 2. **Settings → Secrets and variables → Actions**: add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
 3. **Settings → Pages → Source: GitHub Actions.**
 4. Every push to `main` runs [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) (tests → build → deploy).
