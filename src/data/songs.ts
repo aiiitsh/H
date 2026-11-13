@@ -387,4 +387,195 @@ export const SONGS: Song[] = [
       },
     ],
   },
+  {
+    id: 'halal-cash',
+    title: 'halal cash',
+    artist: "Willy L'ancien",
+    cards: [
+      {
+        fr: 'J’connais des bitches qui sont plus qu’ouvertes',
+        en: 'I know girls who are more than open.',
+        context: 'He knows girls who are very easy to get with, and the next line says he doesn’t care. 🙄',
+        words: [
+          { fr: 'j’connais', en: 'je connais (I know). The e gets swallowed.' },
+          { fr: 'des bitches', en: 'borrowed from English, rude. Understand it, don’t use it.' },
+          { fr: 'plus qu’ouvertes', en: 'plus que ouvertes, more than open. Plus que = more than.' },
+        ],
+      },
+      {
+        fr: 'Mais j’me marche tout seul ou avec le sang',
+        en: 'But I walk alone or with my blood.',
+        context: 'He only rolls with himself or his closest friends. 🤝',
+        words: [
+          { fr: 'j’me marche', en: 'je me marche. Normally just je marche (I walk). The me is a slang twist.' },
+          { fr: 'tout seul', en: 'all alone.' },
+          { fr: 'le sang', en: 'blood. Slang for your closest friends, like “my blood” or “bro”.' },
+        ],
+      },
+      {
+        fr: 'J’ai des plaies qui sont plus qu’ouvertes',
+        en: 'I have wounds that are more than open.',
+        context: 'Same words as two lines up, but now “open” means wounds that still hurt. 💔',
+        words: [
+          { fr: 'une plaie', en: 'a wound. Une plaie ouverte = an open wound.' },
+          { fr: 'qui sont', en: 'that are.' },
+        ],
+      },
+      {
+        fr: 'Qui guérissent pas même avec le temps',
+        en: 'That don’t heal, even with time.',
+        context: 'Time hasn’t fixed his pain. ⏳',
+        words: [
+          { fr: 'guérir', en: 'to heal.' },
+          { fr: 'guérissent pas', en: 'ne guérissent pas. The ne is dropped.' },
+          { fr: 'même avec', en: 'even with.' },
+          { fr: 'le temps', en: 'time. It also means the weather.' },
+        ],
+      },
+      {
+        fr: 'Mets le gars à la potion à 40°',
+        en: 'Put the guy on the 40° potion.',
+        context: 'Get him on strong liquor, 40% alcohol like vodka or whisky. 🥃',
+        words: [
+          { fr: 'mets', en: 'put (mettre, as an order).' },
+          { fr: 'le gars', en: 'the guy. Say “ga”, the rs is silent.' },
+          { fr: 'la potion', en: 'potion. Here a joke word for liquor.' },
+          { fr: 'à 40°', en: 'say “à quarante degrés”: 40% alcohol.' },
+        ],
+      },
+      {
+        fr: 'J’vois le monde de travers, j’le vois en à peu près',
+        en: 'I see the world crooked, I only see it roughly.',
+        context: 'The drink makes everything blurry and tilted. 😵‍💫',
+        words: [
+          { fr: 'j’vois', en: 'je vois (I see).' },
+          { fr: 'de travers', en: 'crooked, sideways. Regarder de travers = to give a dirty look.' },
+          { fr: 'j’le vois', en: 'je le vois (I see it).' },
+          { fr: 'à peu près', en: 'roughly, more or less.' },
+        ],
+      },
+      {
+        fr: 'Je m’arrache loin d’Ali, des 40 te-traî',
+        en: 'I get far away from Ali and the 40 traitors.',
+        context: 'A pun on Ali Baba and the 40 Thieves: here the 40 are traitors, and he leaves them behind. 🏃',
+        words: [
+          { fr: 's’arracher', en: 'slang: to leave fast. Literally to tear yourself away.' },
+          { fr: 'loin de', en: 'far from.' },
+          { fr: 'te-traî', en: 'verlan of traîtres (traitors). Verlan flips the syllables.' },
+        ],
+      },
+      {
+        fr: 'Il bé-tom, il est carbo, il a pas honte de côté',
+        en: 'He falls, he’s wrecked, he’s not ashamed on the side.',
+        context: 'Someone has had too much and collapses, and he doesn’t even care. 🫠',
+        words: [
+          { fr: 'bé-tom', en: 'verlan of tombe (falls).' },
+          { fr: 'carbo', en: 'short for carbonisé: burnt out, wrecked.' },
+          { fr: 'il a pas honte', en: 'il n’a pas honte, he’s not ashamed. Avoir honte = to be ashamed.' },
+          { fr: 'de côté', en: 'on the side. The exact meaning here isn’t clear to me.' },
+        ],
+      },
+      {
+        fr: 'Ils veulent mon cash (que j’crame ma pipe)',
+        en: 'They want my cash (for me to burn my pipe).',
+        context: 'Couplet 2 starts: everyone wants his money. 💸',
+        words: [
+          { fr: 'ils veulent', en: 'they want (vouloir).' },
+          { fr: 'que j’crame', en: 'que je crame. Cramer = to burn, slang for to smoke or to waste.' },
+          { fr: 'ma pipe', en: 'my pipe. The exact meaning of the ad-lib isn’t clear to me.' },
+        ],
+      },
+      {
+        fr: 'Elles veulent mon H (elles veulent ma bite)',
+        en: 'They (the girls) want my H (they want my d***).',
+        context: 'Elles = the girls. H is probably hash, and the ad-lib is crude. 🍃',
+        words: [
+          { fr: 'elles', en: 'they, for a group of women.' },
+          { fr: 'le H', en: 'say “ash”. Slang for hash.' },
+          { fr: 'ma bite', en: 'very vulgar. Understand it, don’t use it.' },
+        ],
+      },
+      {
+        fr: 'Elle veut mon [?] (mais j’lui donne pas)',
+        en: 'She wants my [?] (but I don’t give it to her).',
+        context: 'Genius doesn’t know the word either, so it’s marked [?]. 🤷',
+        words: [
+          { fr: 'j’lui donne pas', en: 'je ne lui donne pas, I don’t give (it) to her. Lui = to her / to him.' },
+        ],
+      },
+      {
+        fr: 'Elle prend le seum (je prends la fuite)',
+        en: 'She gets bitter (I run away).',
+        context: 'She’s upset he won’t give her what she wants, so he leaves. 🏃',
+        words: [
+          { fr: 'le seum', en: 'bitterness, frustration. From Arabic سم (poison). Avoir le seum = to be salty.' },
+          { fr: 'prendre la fuite', en: 'to run away. Une fuite = an escape, and also a leak.' },
+        ],
+      },
+      {
+        fr: 'J’mets l’élastique (halal money)',
+        en: 'I put the rubber band on (halal money).',
+        context: 'He wraps his stacks of cash in rubber bands, and says the money is clean. 💵',
+        words: [
+          { fr: 'j’mets', en: 'je mets (I put).' },
+          { fr: 'l’élastique', en: 'rubber band. Here the one around a stack of bills.' },
+          { fr: 'halal', en: 'allowed in Islam. Halal money = clean, honest money.' },
+        ],
+      },
+      {
+        fr: 'À mes gars tripes (j’bois la honey)',
+        en: 'To my guys… (I drink the honey).',
+        context: 'Sounds like a toast to his friends. 🍯',
+        words: [
+          { fr: 'à mes gars', en: 'to my guys.' },
+          { fr: 'tripes', en: 'guts. Here it’s unclear: maybe “real, from the gut”, but that’s a guess.' },
+          { fr: 'la honey', en: 'English “honey”. Probably a sweet drink, but I can’t confirm.' },
+        ],
+      },
+      {
+        fr: 'J’ai des billets AVS, j’veux milliers d’VVS',
+        en: 'I’ve got AVS bills, I want thousands of VVS.',
+        context: 'He has cash and wants diamonds. 💎',
+        words: [
+          { fr: 'des billets', en: 'bills (banknotes). Also tickets.' },
+          { fr: 'AVS', en: 'unclear. I can’t confirm what it stands for here.' },
+          { fr: 'des milliers de', en: 'thousands of. Un millier = about a thousand.' },
+          { fr: 'VVS', en: 'a diamond clarity grade (very very slightly included), so: top diamonds.' },
+        ],
+      },
+      {
+        fr: 'Quitte à refaire la cess, forcé comme BS',
+        en: 'Even if it means doing the cess again, forced like BS.',
+        context: 'The details are unclear, so take this one as a rough guess. 🤔',
+        words: [
+          { fr: 'quitte à', en: 'even if it means. Quitte à perdre = even if it means losing.' },
+          { fr: 'refaire', en: 'to do again.' },
+          { fr: 'la cess', en: 'unclear. Possibly short for the street or the business, but I can’t confirm.' },
+          { fr: 'forcé', en: 'forced, or slang for “no choice”.' },
+          { fr: 'BS', en: 'unclear. Could be a name or initials.' },
+        ],
+      },
+      {
+        fr: 'En cours c’était le business, j’allais qu’en EPS',
+        en: 'In class it was all business, I only went to PE.',
+        context: 'At school he was hustling and only showed up for gym. 🏀',
+        words: [
+          { fr: 'en cours', en: 'in class.' },
+          { fr: 'c’était', en: 'it was (imparfait).' },
+          { fr: 'j’allais qu’en', en: 'je n’allais qu’en, I only went to. Ne… que = only.' },
+          { fr: 'EPS', en: 'éducation physique et sportive, PE class.' },
+        ],
+      },
+      {
+        fr: 'Petit j’ai pas fait S, petit j’ai pas nahess',
+        en: 'As a kid I didn’t do S, as a kid I didn’t…',
+        context: 'He didn’t take the science track at school. 📚',
+        words: [
+          { fr: 'petit', en: 'small. Here “as a kid”, like quand j’étais petit.' },
+          { fr: 'faire S', en: 'the science track of the old French bac (high school diploma).' },
+          { fr: 'nahess', en: 'unclear. It sounds Arabic, but I can’t confirm the meaning.' },
+        ],
+      },
+    ],
+  },
 ]
