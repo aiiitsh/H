@@ -387,4 +387,94 @@ export const SONGS: Song[] = [
       },
     ],
   },
+  {
+    id: 'halal-cash',
+    title: 'halal cash',
+    artist: "Willy L'ancien",
+    cards: [
+      {
+        fr: 'J’connais des bitches qui sont plus qu’ouvertes',
+        en: 'I know girls who are more than open.',
+        context: 'He knows girls who are very easy to get with, and the next line says he doesn’t care. 🙄',
+        words: [
+          { fr: 'j’connais', en: 'je connais (I know). The e gets swallowed.' },
+          { fr: 'des bitches', en: 'borrowed from English, rude. Understand it, don’t use it.' },
+          { fr: 'plus qu’ouvertes', en: 'plus que ouvertes, more than open. Plus que = more than.' },
+        ],
+      },
+      {
+        fr: 'Mais j’me marche tout seul ou avec le sang',
+        en: 'But I walk alone or with my blood.',
+        context: 'He only rolls with himself or his closest friends. 🤝',
+        words: [
+          { fr: 'j’me marche', en: 'je me marche. Normally just je marche (I walk). The me is a slang twist.' },
+          { fr: 'tout seul', en: 'all alone.' },
+          { fr: 'le sang', en: 'blood. Slang for your closest friends, like “my blood” or “bro”.' },
+        ],
+      },
+      {
+        fr: 'J’ai des plaies qui sont plus qu’ouvertes',
+        en: 'I have wounds that are more than open.',
+        context: 'Same words as two lines up, but now “open” means wounds that still hurt. 💔',
+        words: [
+          { fr: 'une plaie', en: 'a wound. Une plaie ouverte = an open wound.' },
+          { fr: 'qui sont', en: 'that are.' },
+        ],
+      },
+      {
+        fr: 'Qui guérissent pas même avec le temps',
+        en: 'That don’t heal, even with time.',
+        context: 'Time hasn’t fixed his pain. ⏳',
+        words: [
+          { fr: 'guérir', en: 'to heal.' },
+          { fr: 'guérissent pas', en: 'ne guérissent pas. The ne is dropped.' },
+          { fr: 'même avec', en: 'even with.' },
+          { fr: 'le temps', en: 'time. It also means the weather.' },
+        ],
+      },
+      {
+        fr: 'Mets le gars à la potion à 40°',
+        en: 'Put the guy on the 40° potion.',
+        context: 'Get him on strong liquor, 40% alcohol like vodka or whisky. 🥃',
+        words: [
+          { fr: 'mets', en: 'put (mettre, as an order).' },
+          { fr: 'le gars', en: 'the guy. Say “ga”, the rs is silent.' },
+          { fr: 'la potion', en: 'potion. Here a joke word for liquor.' },
+          { fr: 'à 40°', en: 'say “à quarante degrés”: 40% alcohol.' },
+        ],
+      },
+      {
+        fr: 'J’vois le monde de travers, j’le vois en à peu près',
+        en: 'I see the world crooked, I only see it roughly.',
+        context: 'The drink makes everything blurry and tilted. 😵‍💫',
+        words: [
+          { fr: 'j’vois', en: 'je vois (I see).' },
+          { fr: 'de travers', en: 'crooked, sideways. Regarder de travers = to give a dirty look.' },
+          { fr: 'j’le vois', en: 'je le vois (I see it).' },
+          { fr: 'à peu près', en: 'roughly, more or less.' },
+        ],
+      },
+      {
+        fr: 'Je m’arrache loin d’Ali, des 40 te-traî',
+        en: 'I get far away from Ali and the 40 traitors.',
+        context: 'A pun on Ali Baba and the 40 Thieves: here the 40 are traitors, and he leaves them behind. 🏃',
+        words: [
+          { fr: 's’arracher', en: 'slang: to leave fast. Literally to tear yourself away.' },
+          { fr: 'loin de', en: 'far from.' },
+          { fr: 'te-traî', en: 'verlan of traîtres (traitors). Verlan flips the syllables.' },
+        ],
+      },
+      {
+        fr: 'Il bé-tom, il est carbo, il a pas honte de côté',
+        en: 'He falls, he’s wrecked, he’s not ashamed on the side.',
+        context: 'Someone has had too much and collapses, and he doesn’t even care. 🫠',
+        words: [
+          { fr: 'bé-tom', en: 'verlan of tombe (falls).' },
+          { fr: 'carbo', en: 'short for carbonisé: burnt out, wrecked.' },
+          { fr: 'il a pas honte', en: 'il n’a pas honte, he’s not ashamed. Avoir honte = to be ashamed.' },
+          { fr: 'de côté', en: 'on the side. The exact meaning here isn’t clear to me.' },
+        ],
+      },
+    ],
+  },
 ]
