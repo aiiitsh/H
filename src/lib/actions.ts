@@ -10,6 +10,7 @@ import { swimTarget } from './plan'
 import { cleanTag, tagLabel } from './focustags'
 import { amountLabel, type QuranAmount } from './qurandaily'
 import { companyFromJob, jobsToAdd, type ApmJob } from './apmfeed'
+import { isDeadEnd } from './companies'
 import { splitPriority } from './tasks'
 import type { ActiveSession, AppState, DayCode, Feel, FocusBlock, FocusTag, HabitEntry, LifePlan, LifeStep, Log, LogType, PlanSlot, Priority, QuranEvent, Company, StepState, Target, Task, WeekPlan, Workout, WorkoutSet } from './types'
 
@@ -639,15 +640,32 @@ export function toggleApplied(id: string) {
   toast(`${c.name}: not applied`, () => patchSettings({ companies: prev }))
 }
 
-/** New APM List jobs go straight into the tracker (one save for all of them). */
-export function addFeedJobs(jobs: ApmJob[]) {
+/**
+ * Keeps the tracker current in one save: new APM List jobs go straight in, and companies with nothing left to do
+ * (no Canadian office for Mitacs, and no open internship) are removed and kept from coming back.
+ */
+export function syncCompanies(jobs: ApmJob[]) {
   const app = get().appState
-  if (!app || !jobs.length) return
-  const add = jobsToAdd(jobs, companiesNow(), app.settings.apm_hidden)
-  if (!add.length) return
-  const now = new Date().toISOString()
+  if (!app) return
   const today = localDate()
-  patchSettings({ companies: [...companiesNow(), ...add.map((j) => companyFromJob(j, newId(), now, today))] })
+  const now = new Date().toISOString()
+  const hidden = app.settings.apm_hidden ?? []
+  const added = jobsToAdd(jobs, companiesNow(), hidden).map((j) => companyFromJob(j, newId(), now, today))
+  const all = [...companiesNow(), ...added]
+  const dead = all.filter((c) => isDeadEnd(c, today))
+  if (!added.length && !dead.length) return
+  const keep = all.filter((c) => !isDeadEnd(c, today))
+  const gone = dead.map((c) => c.apm_id).filter((id): id is string => !!id)
+  patchSettings({ companies: keep, ...(gone.length ? { apm_hidden: [...hidden, ...gone].slice(-500) } : {}) })
+}
+
+/** Reached out about Mitacs (for a posting whose deadline passed). */
+export function markMitacsReached(id: string) {
+  const prev = companiesNow()
+  const c = prev.find((x) => x.id === id)
+  if (!c) return
+  patchSettings({ companies: prev.map((x) => (x.id === id ? { ...x, mitacs: { contact: x.mitacs?.contact ?? null, status: 'emailed', last_contact: localDate() } } : x)) })
+  toast(`${c.name}: reached out for Mitacs`, () => patchSettings({ companies: prev }))
 }
 
 /** Deleting a company that came from APM List also keeps it from being added again. */

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useStore, newId } from '../lib/store'
-import { addFeedJobs, deleteCompany, markApplied, saveCompany, toggleApplied } from '../lib/actions'
-import { JOB_STATUS, MITACS_STATUS, NO_INDUSTRY, PULLS, blankCompany, byIndustry, dueSteps, labelOf, sortCompanies, toApply } from '../lib/companies'
+import { deleteCompany, markApplied, markMitacsReached, saveCompany, syncCompanies, toggleApplied } from '../lib/actions'
+import { JOB_STATUS, MITACS_STATUS, NO_INDUSTRY, PULLS, blankCompany, byIndustry, deadlinePassed, dueSteps, labelOf, mitacsPossible, officeOf, sortCompanies, toApply } from '../lib/companies'
 import { freshCompany, loadApmFeed, useApmFeed } from '../lib/apmfeed'
 import { NEED_LABEL, REFERRAL_LABEL, referralNeed, referralOf, type ReferralNeed } from '../data/referrals'
+import { OFFICE_LABEL } from '../data/canadaOffices'
 import { dueLabel } from '../lib/tasks'
 import { addDays, localDate } from '../lib/time'
 import type { Company, Priority } from '../lib/types'
@@ -55,6 +56,12 @@ export function Companies() {
 
 const needOf = (c: Company): ReferralNeed => c.referral_need ?? referralNeed(c.name)
 
+/** Canadian office: Mitacs needs one. */
+function OfficeTag({ c }: { c: Company }) {
+  const o = officeOf(c)
+  return <span className={`chip sm${o === 'yes' ? ' on' : o === 'unsure' ? ' dashed' : ''}`}>{labelOf(OFFICE_LABEL, o)}</span>
+}
+
 /** Every company's referral tag: needs one, doesn't, or not sure. */
 function ReferralTag({ c }: { c: Company }) {
   const n = needOf(c)
@@ -71,7 +78,7 @@ export function FeedSync() {
     document.addEventListener('visibilitychange', vis)
     return () => document.removeEventListener('visibilitychange', vis)
   }, [])
-  useEffect(() => { if (ready) addFeedJobs(jobs) }, [ready, jobs])
+  useEffect(() => { if (ready) syncCompanies(jobs) }, [ready, jobs])
   return null
 }
 
@@ -82,7 +89,7 @@ function CompanyRow({ c, onOpen }: { c: Company; onOpen: () => void }) {
   const late = !!c.next_on && c.next_on <= today
   return (
     <div className="li" style={{ alignItems: 'flex-start', gap: 8, opacity: c.job && !toApply(c) && !c.mitacs ? 0.6 : 1 }}>
-    {c.job ? (
+    {c.job && !deadlinePassed(c, today) ? (
       <button className="btn btn-ghost btn-sq" style={{ minHeight: 40, width: 40, flex: 'none' }} onClick={() => toggleApplied(c.id)}
         aria-label={toApply(c) ? `Mark ${c.name} applied` : `Mark ${c.name} not applied`} aria-pressed={!toApply(c)}>
         <Icon name={toApply(c) ? 'circle' : 'circlecheck'} size={24} glow={toApply(c)} />
@@ -103,9 +110,10 @@ function CompanyRow({ c, onOpen }: { c: Company; onOpen: () => void }) {
         <span className="row wrap" style={{ gap: 6 }}>
           {c.job && <span className="chip sm">Job · {labelOf(JOB_STATUS, c.job.status)}{c.job.referral ? ' · referral' : ''}</span>}
           {c.mitacs && <span className="chip sm">Mitacs · {labelOf(MITACS_STATUS, c.mitacs.status)}</span>}
-          {c.job?.deadline && c.job.status === 'to_apply' && (c.job.deadline < today ? <span className="chip sm dashed">Deadline passed?</span> : <span className={`chip sm${c.job.deadline === today ? ' warn' : ''}`}>{dueLabel(c.job.deadline)}</span>)}
+          {c.job?.deadline && c.job.status === 'to_apply' && (deadlinePassed(c, today) ? <span className="chip sm dashed">Deadline passed</span> : <span className={`chip sm${c.job.deadline === today ? ' warn' : ''}`}>{dueLabel(c.job.deadline)}</span>)}
           {c.mba && <span className="chip sm dashed">MBA</span>}
           <ReferralTag c={c} />
+          <OfficeTag c={c} />
         </span>
         {c.next && (
           <span className="small" style={{ overflowWrap: 'anywhere' }}>
@@ -115,9 +123,11 @@ function CompanyRow({ c, onOpen }: { c: Company; onOpen: () => void }) {
       </span>
       <Icon name="chevron" size={16} glow={false} />
     </button>
-    {toApply(c) && (
+    {toApply(c) && mitacsPossible(c) && !(c.mitacs && c.mitacs.status !== 'to_contact') && (
       <div className="row wrap" style={{ gap: 8 }}>
-        <button className="chip" onClick={() => markApplied(c.id, true)}>✓ Applied + Mitacs</button>
+        {deadlinePassed(c, today)
+          ? <button className="chip" onClick={() => markMitacsReached(c.id)}>✓ Reached out for Mitacs</button>
+          : <button className="chip" onClick={() => markApplied(c.id, true)}>✓ Applied + Mitacs</button>}
       </div>
     )}
     </div>
@@ -207,6 +217,9 @@ function CompanyEditor({ initial, isNew, industries, onClose }: { initial: Compa
 
       <Label>How it feels</Label>
       <Chips list={PULLS} value={c.pull} onChange={(pull) => set({ pull })} />
+
+      <Label>Office in Canada (for Mitacs)</Label>
+      <Chips list={OFFICE_LABEL} value={officeOf(c)} onChange={(o) => set({ canada_office: o ?? null })} />
 
       <Label>Referral</Label>
       <Chips list={NEED_LABEL} value={needOf(c)} onChange={(n) => set({ referral_need: n ?? null })} />

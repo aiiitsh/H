@@ -4,7 +4,8 @@ import { buildMonthText, buildText, targetLines } from './export'
 import { nextCard, today as dailyToday } from './songdaily'
 import { byCategory, byWhat, cleanTag } from './focustags'
 import { describe, expect, it } from 'vitest'
-import { byIndustry, dueSteps, sortCompanies } from './companies'
+import { byIndustry, dueSteps, isDeadEnd, sortCompanies } from './companies'
+import { canadaOfficeOf } from '../data/canadaOffices'
 import { companyFromJob, jobsToAdd, type ApmJob } from './apmfeed'
 import { bundleOf, shouldReload } from './update'
 import { goalRun, milestoneOf, pendingMilestone, weeksAndDays } from './streakgoal'
@@ -634,5 +635,22 @@ describe('companies: closed postings go last', () => {
   it('a to-apply company whose deadline passed sorts after open ones', () => {
     const co = (id: string, deadline: string): Company => ({ id, name: id, created_at: '', job: { status: 'to_apply', deadline } })
     expect(sortCompanies([co('gone', '2026-10-01'), co('open', '2026-12-01')], '2026-11-16').map((c) => c.id)).toEqual(['open', 'gone'])
+  })
+})
+
+describe('companies: Canadian office and dead ends', () => {
+  const today = '2026-11-16'
+  const co = (name: string, extra: Partial<Company> = {}): Company => ({ id: name, name, created_at: '', ...extra })
+  it('knows which companies have a Canadian office', () => {
+    expect(['Microsoft', 'Procter & Gamble', 'Jane Street', 'Appian'].map(canadaOfficeOf)).toEqual(['yes', 'yes', 'no', 'unsure'])
+  })
+  it('removes only companies with no Canadian office and no open internship, never applied ones', () => {
+    expect(isDeadEnd(co('Jane Street', { job: { status: 'to_apply', deadline: '2026-11-15' } }), today)).toBe(true)
+    expect(isDeadEnd(co('Jane Street', { job: { status: 'to_apply', deadline: '2026-12-01' } }), today)).toBe(false)
+    expect(isDeadEnd(co('Roblox', { job: { status: 'applied', deadline: '2026-10-30' } }), today)).toBe(false)
+    expect(isDeadEnd(co('Roblox'), today)).toBe(true)
+    expect(isDeadEnd(co('Appian', { job: { status: 'to_apply', deadline: '2026-10-01' } }), today)).toBe(false)
+    expect(isDeadEnd(co('Microsoft', { job: { status: 'to_apply', deadline: '2026-10-01' } }), today)).toBe(false)
+    expect(isDeadEnd(co('Appian', { canada_office: 'no', job: { status: 'no' } }), today)).toBe(true)
   })
 })

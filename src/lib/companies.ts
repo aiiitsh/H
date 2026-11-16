@@ -2,6 +2,7 @@
 // Lives in app_state.settings.companies (merged by id like tasks), never in the code.
 import type { Company, CompanyJobStatus, MitacsStatus, Pull } from './types'
 import { localDate } from './time'
+import { canadaOfficeOf, type CanadaOffice } from '../data/canadaOffices'
 
 export const JOB_STATUS: [CompanyJobStatus, string][] = [
   ['to_apply', 'To apply'], ['applied', 'Applied'], ['interview', 'Interview'], ['offer', 'Offer'], ['no', 'No'],
@@ -22,6 +23,21 @@ export const dueSteps = (cs: Company[], today = localDate()) =>
 
 /** Still to apply to. */
 export const toApply = (c: Company) => c.job?.status === 'to_apply'
+
+/** Still to apply to, but the posting's deadline is past: only Mitacs is left. */
+export const deadlinePassed = (c: Company, today = localDate()) => toApply(c) && !!c.job?.deadline && c.job.deadline < today
+
+export const officeOf = (c: Company): CanadaOffice => c.canada_office ?? canadaOfficeOf(c.name)
+
+/** Mitacs needs a Canadian office; "not sure" still allows it. */
+export const mitacsPossible = (c: Company) => officeOf(c) !== 'no'
+
+/**
+ * Nothing left to do here: no Canadian office (so no Mitacs) and no internship to apply to (none, closed, or a
+ * passed deadline). Never a company he applied to.
+ */
+export const isDeadEnd = (c: Company, today = localDate()) =>
+  !mitacsPossible(c) && (!c.job || c.job.status === 'no' || deadlinePassed(c, today))
 
 /** Companies to apply to first (by priority, then soonest deadline or step); then the rest by their next date.
  *  A deadline already past probably means the posting closed, so it goes to the end. */

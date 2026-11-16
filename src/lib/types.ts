@@ -161,6 +161,8 @@ export interface Company {
   mba?: boolean
   /** his own call on the referral tag (else it comes from the research) */
   referral_need?: 'needs' | 'no' | 'unsure' | null
+  /** his own call on whether it has a Canadian office (Mitacs needs one); else from the list */
+  canada_office?: 'yes' | 'no' | 'unsure' | null
   created_at: string
 }
 
