@@ -20,11 +20,16 @@ export const NO_INDUSTRY = 'No industry yet'
 export const dueSteps = (cs: Company[], today = localDate()) =>
   cs.filter((c) => c.next && c.next_on && c.next_on <= today).sort((a, b) => a.next_on!.localeCompare(b.next_on!))
 
-/** Soonest next step first, then dated deadlines, then the rest by priority and name. */
+/** Still to apply to. */
+export const toApply = (c: Company) => c.job?.status === 'to_apply'
+
+/** Companies to apply to first (by priority, then soonest deadline or step); then the rest by their next date. */
 export function sortCompanies(cs: Company[]): Company[] {
-  const when = (c: Company) => c.next_on ?? c.job?.deadline ?? '9999'
+  const when = (c: Company) => [c.job?.deadline, c.next_on].filter((d): d is string => !!d).sort()[0] ?? '9999'
   return [...cs].sort((a, b) =>
-    when(a).localeCompare(when(b)) || (a.priority ?? 4) - (b.priority ?? 4) || a.name.localeCompare(b.name))
+    Number(toApply(b)) - Number(toApply(a))
+    || (toApply(a) ? (a.priority ?? 4) - (b.priority ?? 4) : 0)
+    || when(a).localeCompare(when(b)) || (a.priority ?? 4) - (b.priority ?? 4) || a.name.localeCompare(b.name))
 }
 
 export interface IndustryGroup { industry: string; companies: Company[]; pulled: number; neutral: number; pushed: number }

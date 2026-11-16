@@ -613,6 +613,28 @@ export function saveCompany(c: Company) {
   toast(exists ? `${c.name} saved` : `${c.name} added`)
 }
 
+/** One tap: applied (and, with mitacs, reached out for Mitacs too). Clears an "Apply" next step. */
+export function markApplied(id: string, mitacs = false) {
+  const prev = companiesNow()
+  const c = prev.find((x) => x.id === id)
+  if (!c) return
+  const next: Company = {
+    ...c,
+    job: { ...(c.job ?? {}), status: 'applied' },
+    ...(mitacs ? { mitacs: { contact: c.mitacs?.contact ?? null, status: 'emailed' as const, last_contact: localDate() } } : {}),
+    ...(c.next === 'Apply' ? { next: null, next_on: null } : {}),
+  }
+  patchSettings({ companies: prev.map((x) => (x.id === id ? next : x)) })
+  toast(mitacs ? `${c.name}: applied + Mitacs` : `${c.name}: applied`, () => patchSettings({ companies: prev }))
+}
+
+/** Hide an APM List job from the feed (Undo brings it back). */
+export function hideApmJob(id: string) {
+  const prev = get().appState?.settings.apm_hidden ?? []
+  patchSettings({ apm_hidden: [...prev, id].slice(-500) })
+  toast('Hidden', () => patchSettings({ apm_hidden: prev }))
+}
+
 export function deleteCompany(id: string) {
   const prev = companiesNow()
   const c = prev.find((x) => x.id === id)

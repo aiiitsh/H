@@ -21,3 +21,6 @@ private-data/
 
 # Personal mentor notes (local only, never committed)
 MENTOR.md
+
+# APM List feed (built by the deploy workflow)
+public/apm.json

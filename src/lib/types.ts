@@ -83,6 +83,8 @@ export interface Settings {
   tasks?: Task[]
   /** Companies tracker: job applications and Mitacs outreach per company */
   companies?: Company[]
+  /** APM List jobs hidden from the Companies feed */
+  apm_hidden?: string[]
   /** Focus categories (Afflo, Study, ...). */
   focus_categories?: string[]
   /** Labels for focus blocks, by block id. */
@@ -153,6 +155,8 @@ export interface Company {
   next_on?: string | null
   priority?: Priority | null
   notes?: string | null
+  /** APM List job this came from */
+  apm_id?: string | null
   created_at: string
 }
 

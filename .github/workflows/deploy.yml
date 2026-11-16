@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  # Refresh the APM List feed (public/apm.json) at 9 am, 12 pm, 3 pm and 6 pm Toronto (EST; an hour later in summer).
+  schedule:
+    - cron: '7 14,17,20,23 * * *'
 
 permissions:
   contents: read
@@ -25,6 +28,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      - run: node scripts/apmlist-sync.mjs
       - run: npm run build
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
