@@ -604,10 +604,11 @@ describe('companies tracker', () => {
     const cs = [co('a', { next: 'x', next_on: '2026-11-17' }), co('b', { next: 'y', next_on: '2026-11-16' }), co('c', { next: 'z', next_on: '2026-11-10' }), co('d', { next_on: '2026-11-01' })]
     expect(dueSteps(cs, '2026-11-16').map((c) => c.id)).toEqual(['c', 'b'])
   })
-  it('puts companies to apply to first, by priority then deadline', () => {
-    const cs = [co('done', { job: { status: 'applied' }, next_on: '2026-11-17' }), co('p2', { priority: 2, job: { status: 'to_apply', deadline: '2026-11-18' } }),
-      co('p1late', { priority: 1, job: { status: 'to_apply', deadline: '2026-12-01' } }), co('p1soon', { priority: 1, job: { status: 'to_apply', deadline: '2026-11-20' } }), co('mitacs', { mitacs: { status: 'to_contact' } })]
-    expect(sortCompanies(cs).map((c) => c.id)).toEqual(['p1soon', 'p1late', 'p2', 'done', 'mitacs'])
+  it('apply-to-first order: closest deadline, then no deadline, then passed, then done', () => {
+    const today = '2026-11-16'
+    const cs = [co('done', { job: { status: 'applied', deadline: '2026-11-17' } }), co('nodl', { job: { status: 'to_apply' } }), co('passed', { job: { status: 'to_apply', deadline: '2026-11-01' } }),
+      co('later', { job: { status: 'to_apply', deadline: '2026-12-01' } }), co('soon', { job: { status: 'to_apply', deadline: '2026-11-20' } }), co('mitacs', { mitacs: { status: 'to_contact' } })]
+    expect(sortCompanies(cs, today).map((c) => c.id)).toEqual(['soon', 'later', 'nodl', 'passed', 'done', 'mitacs'])
   })
   it('groups industries by how they felt, strongest pull first', () => {
     const cs = [co('t', { industry: 'Automotive', pull: 'pulled' }), co('m', { industry: 'automotive', pull: 'pulled' }), co('b', { industry: 'Banking', pull: 'pushed' }), co('x')]

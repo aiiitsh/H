@@ -39,17 +39,12 @@ export const mitacsPossible = (c: Company) => officeOf(c) !== 'no'
 export const isDeadEnd = (c: Company, today = localDate()) =>
   !mitacsPossible(c) && (!c.job || c.job.status === 'no' || deadlinePassed(c, today))
 
-/** Companies to apply to first (by priority, then soonest deadline or step); then the rest by their next date.
- *  A deadline already past probably means the posting closed, so it goes to the end. */
+/** What to apply to next: open deadlines (closest first), then no deadline, then passed deadlines (Mitacs only),
+ *  then everything already applied or done. */
 export function sortCompanies(cs: Company[], today = localDate()): Company[] {
-  const when = (c: Company) => {
-    if (toApply(c) && c.job?.deadline && c.job.deadline < today) return '9998'
-    return [c.job?.deadline, c.next_on].filter((d): d is string => !!d).sort()[0] ?? '9999'
-  }
-  return [...cs].sort((a, b) =>
-    Number(toApply(b)) - Number(toApply(a))
-    || (toApply(a) ? (a.priority ?? 4) - (b.priority ?? 4) : 0)
-    || when(a).localeCompare(when(b)) || (a.priority ?? 4) - (b.priority ?? 4) || a.name.localeCompare(b.name))
+  const group = (c: Company) => (!toApply(c) ? 3 : !c.job?.deadline ? 1 : c.job.deadline < today ? 2 : 0)
+  const when = (c: Company) => c.job?.deadline ?? c.next_on ?? '9999'
+  return [...cs].sort((a, b) => group(a) - group(b) || when(a).localeCompare(when(b)) || a.name.localeCompare(b.name))
 }
 
 export interface IndustryGroup { industry: string; companies: Company[]; pulled: number; neutral: number; pushed: number }

@@ -7,7 +7,7 @@ import { NEED_LABEL, REFERRAL_LABEL, referralNeed, referralOf, type ReferralNeed
 import { OFFICE_LABEL } from '../data/canadaOffices'
 import { dueLabel } from '../lib/tasks'
 import { addDays, localDate } from '../lib/time'
-import type { Company, Priority } from '../lib/types'
+import type { Company } from '../lib/types'
 import { Label, Sheet, Toggle } from '../components/ui'
 import { Icon } from '../components/Icon'
 
@@ -92,7 +92,6 @@ function CompanyRow({ c, onOpen }: { c: Company; onOpen: () => void }) {
       <span className="stack grow" style={{ gap: 5, minWidth: 0 }}>
         <span className="row wrap" style={{ gap: 8 }}>
           {freshCompany(c, today) && <span className="fire" role="img" aria-label="Posted today">🔥</span>}
-          {c.priority && <span className={`prio p${c.priority}`}>P{c.priority}</span>}
           <span className="strong" style={{ overflowWrap: 'anywhere' }}>{c.name}</span>
           {c.pull && <span className={pullCls(c.pull)}>{labelOf(PULLS, c.pull)}</span>}
         </span>
@@ -230,9 +229,6 @@ function CompanyEditor({ initial, isNew, industries, onClose }: { initial: Compa
           )}
           <Field label="Next step (your own words)"><input className="field" value={c.next ?? ''} placeholder="e.g. Send the email" onChange={(e) => set({ next: text(e.target.value) })} /></Field>
           <Field label="By"><input className="field" type="date" value={c.next_on ?? ''} onChange={(e) => set({ next_on: e.target.value || null })} /></Field>
-          <Label>Priority</Label>
-          <Chips list={[['1', 'P1'], ['2', 'P2'], ['3', 'P3']] as [string, string][]} value={c.priority ? String(c.priority) : null}
-            onChange={(p) => set({ priority: p ? (Number(p) as Priority) : null })} />
           <Field label="Notes"><textarea className="field" value={c.notes ?? ''} onChange={(e) => set({ notes: text(e.target.value) })} /></Field>
         </div>
       )}
