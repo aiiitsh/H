@@ -144,7 +144,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   return <label className="stack" style={{ gap: 6 }}><span className="label">{label}</span>{children}</label>
 }
 
-const NEXT_STEPS: [string, string][] = [['Apply', 'Apply'], ['Ask for a referral', 'Ask for a referral'], ['Email about Mitacs', 'Email about Mitacs'], ['Follow up', 'Follow up']]
+const NEXT_STEPS: [string, string][] = [['Apply', 'Apply'], ['Send LinkedIn connections', 'Send LinkedIn connections'], ['Ask for a referral', 'Ask for a referral'], ['Email about Mitacs', 'Email about Mitacs'], ['Follow up', 'Follow up']]
 const WHEN: [number, string][] = [[0, 'Today'], [1, 'Tomorrow'], [3, 'In 3 days'], [7, 'Next week']]
 
 /** Quick by default: name and a few taps. Everything else sits under "More details". */

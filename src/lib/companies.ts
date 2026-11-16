@@ -8,7 +8,7 @@ export const JOB_STATUS: [CompanyJobStatus, string][] = [
   ['to_apply', 'To apply'], ['applied', 'Applied'], ['interview', 'Interview'], ['offer', 'Offer'], ['no', 'No'],
 ]
 export const MITACS_STATUS: [MitacsStatus, string][] = [
-  ['to_contact', 'To reach out'], ['emailed', 'Emailed'], ['replied', 'Replied'], ['meeting', 'Meeting'], ['project', 'Project'], ['no', 'No'],
+  ['to_contact', 'To reach out'], ['linkedin', 'LinkedIn sent'], ['emailed', 'Emailed'], ['replied', 'Replied'], ['meeting', 'Meeting'], ['project', 'Project'], ['no', 'No'],
 ]
 /** How a company felt to him: the one-line "pull" notes behind picking Mitacs industries. */
 export const PULLS: [Pull, string][] = [['pulled', 'Pulled'], ['neutral', 'Neutral'], ['pushed', 'Pushed away']]

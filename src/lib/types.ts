@@ -135,7 +135,7 @@ export interface LifePlan {
 }
 
 export type CompanyJobStatus = 'to_apply' | 'applied' | 'interview' | 'offer' | 'no'
-export type MitacsStatus = 'to_contact' | 'emailed' | 'replied' | 'meeting' | 'project' | 'no'
+export type MitacsStatus = 'to_contact' | 'linkedin' | 'emailed' | 'replied' | 'meeting' | 'project' | 'no'
 export type Pull = 'pulled' | 'neutral' | 'pushed'
 
 export interface Company {
