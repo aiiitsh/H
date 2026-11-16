@@ -9,6 +9,7 @@ import { surahLatin } from '../data/surahs'
 import { swimTarget } from './plan'
 import { cleanTag, tagLabel } from './focustags'
 import { amountLabel, type QuranAmount } from './qurandaily'
+import { companyFromJob, jobsToAdd, type ApmJob } from './apmfeed'
 import { splitPriority } from './tasks'
 import type { ActiveSession, AppState, DayCode, Feel, FocusBlock, FocusTag, HabitEntry, LifePlan, LifeStep, Log, LogType, PlanSlot, Priority, QuranEvent, Company, StepState, Target, Task, WeekPlan, Workout, WorkoutSet } from './types'
 
@@ -628,18 +629,34 @@ export function markApplied(id: string, mitacs = false) {
   toast(mitacs ? `${c.name}: applied + Mitacs` : `${c.name}: applied`, () => patchSettings({ companies: prev }))
 }
 
-/** Hide an APM List job from the feed (Undo brings it back). */
-export function hideApmJob(id: string) {
-  const prev = get().appState?.settings.apm_hidden ?? []
-  patchSettings({ apm_hidden: [...prev, id].slice(-500) })
-  toast('Hidden', () => patchSettings({ apm_hidden: prev }))
+/** The applied checkbox: untick puts it back to "to apply". */
+export function toggleApplied(id: string) {
+  const c = companiesNow().find((x) => x.id === id)
+  if (!c?.job) return
+  if (c.job.status === 'to_apply') { markApplied(id); return }
+  const prev = companiesNow()
+  patchSettings({ companies: prev.map((x) => (x.id === id ? { ...x, job: { ...x.job!, status: 'to_apply' } } : x)) })
+  toast(`${c.name}: not applied`, () => patchSettings({ companies: prev }))
 }
 
+/** New APM List jobs go straight into the tracker (one save for all of them). */
+export function addFeedJobs(jobs: ApmJob[]) {
+  const app = get().appState
+  if (!app || !jobs.length) return
+  const add = jobsToAdd(jobs, companiesNow(), app.settings.apm_hidden)
+  if (!add.length) return
+  const now = new Date().toISOString()
+  const today = localDate()
+  patchSettings({ companies: [...companiesNow(), ...add.map((j) => companyFromJob(j, newId(), now, today))] })
+}
+
+/** Deleting a company that came from APM List also keeps it from being added again. */
 export function deleteCompany(id: string) {
   const prev = companiesNow()
+  const prevHidden = get().appState?.settings.apm_hidden ?? []
   const c = prev.find((x) => x.id === id)
-  patchSettings({ companies: prev.filter((x) => x.id !== id) })
-  toast(`${c?.name ?? 'Company'} deleted`, () => patchSettings({ companies: prev }))
+  patchSettings({ companies: prev.filter((x) => x.id !== id), ...(c?.apm_id ? { apm_hidden: [...prevHidden, c.apm_id].slice(-500) } : {}) })
+  toast(`${c?.name ?? 'Company'} deleted`, () => patchSettings({ companies: prev, apm_hidden: prevHidden }))
 }
 
 export function deleteTask(id: string) {

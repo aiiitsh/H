@@ -155,8 +155,12 @@ export interface Company {
   next_on?: string | null
   priority?: Priority | null
   notes?: string | null
-  /** APM List job this came from */
+  /** APM List job this came from, the day it was posted, and whether it asks for an MBA */
   apm_id?: string | null
+  posted?: string | null
+  mba?: boolean
+  /** his own call on the referral tag (else it comes from the research) */
+  referral_need?: 'needs' | 'no' | 'unsure' | null
   created_at: string
 }
 

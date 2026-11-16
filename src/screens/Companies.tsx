@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useStore, newId } from '../lib/store'
-import { deleteCompany, hideApmJob, markApplied, saveCompany } from '../lib/actions'
+import { addFeedJobs, deleteCompany, markApplied, saveCompany, toggleApplied } from '../lib/actions'
 import { JOB_STATUS, MITACS_STATUS, NO_INDUSTRY, PULLS, blankCompany, byIndustry, dueSteps, labelOf, sortCompanies, toApply } from '../lib/companies'
-import { companyFromJob, daysOld, isFresh, loadApmFeed, openJobs, useApmFeed, type ApmJob } from '../lib/apmfeed'
-import { REFERRAL_LABEL, referralOf } from '../data/referrals'
+import { freshCompany, loadApmFeed, useApmFeed } from '../lib/apmfeed'
+import { NEED_LABEL, REFERRAL_LABEL, referralNeed, referralOf, type ReferralNeed } from '../data/referrals'
 import { dueLabel } from '../lib/tasks'
 import { addDays, localDate } from '../lib/time'
 import type { Company, Priority } from '../lib/types'
@@ -15,19 +15,8 @@ type View = 'all' | 'jobs' | 'mitacs' | 'industries'
 
 const useCompanies = () => useStore((s) => s.appState?.settings?.companies) ?? []
 
-/** Keeps the APM List feed fresh while a page that shows it is open. */
-function useFeed() {
-  useEffect(() => {
-    void loadApmFeed()
-    const vis = () => document.visibilityState === 'visible' && void loadApmFeed()
-    document.addEventListener('visibilitychange', vis)
-    return () => document.removeEventListener('visibilitychange', vis)
-  }, [])
-}
-
 /** One place for every company: the job application and the Mitacs outreach side by side. */
 export function Companies() {
-  useFeed()
   const companies = useCompanies()
   const [view, setView] = useState<View>('all')
   const [edit, setEdit] = useState<{ c: Company; isNew: boolean } | null>(null)
@@ -42,8 +31,6 @@ export function Companies() {
         <h1 className="hero-word" style={{ fontSize: 34 }}>COMPANIES</h1>
         <Label>{companies.length} companies · {applied} applied · {reached} reached for Mitacs</Label>
       </header>
-
-      <NewJobs companies={companies} />
 
       <button className="btn btn-filled btn-block btn-caps" onClick={() => setEdit({ c: blankCompany(newId(), new Date().toISOString()), isNew: true })}>
         <Icon name="plus" size={18} glow={false} /> Add company
@@ -66,56 +53,26 @@ export function Companies() {
   )
 }
 
-/** Fire for a posting that went up today; otherwise how new it is. */
-function Freshness({ j, today }: { j: ApmJob; today: string }) {
-  if (isFresh(j, today)) return <span className="fire" role="img" aria-label="Posted today">🔥</span>
-  const d = daysOld(j, today)
-  return d <= 3 ? <span className="chip sm on">New</span> : <span className="label">{d}d</span>
+const needOf = (c: Company): ReferralNeed => c.referral_need ?? referralNeed(c.name)
+
+/** Every company's referral tag: needs one, doesn't, or not sure. */
+function ReferralTag({ c }: { c: Company }) {
+  const n = needOf(c)
+  return <span className={`chip sm${n === 'needs' ? ' on' : n === 'unsure' ? ' dashed' : ''}`} title={referralOf(c.name)?.why}>{labelOf(NEED_LABEL, n)}</span>
 }
 
-function ReferralFlag({ company }: { company: string }) {
-  const r = referralOf(company)
-  if (!r) return null
-  return <span className={`chip sm${r.policy === 'yes' ? '' : ' dashed'}`} title={r.why}>{REFERRAL_LABEL[r.policy]}</span>
-}
-
-/** New PM internships from APM List that aren't in the tracker yet. One tap adds or hides. */
-function NewJobs({ companies }: { companies: Company[] }) {
-  const { jobs, loaded } = useApmFeed()
-  const hidden = useStore((s) => s.appState?.settings?.apm_hidden)
-  const [all, setAll] = useState(false)
-  const today = localDate()
-  const open = openJobs(jobs, companies, hidden)
-  if (!loaded || !open.length) return null
-  const fresh = open.filter((j) => isFresh(j, today)).length
-  const shown = all ? open : open.slice(0, 6)
-  return (
-    <section className="panel stack" style={{ gap: 10 }}>
-      <div className="row between">
-        <Label>New on APM List · {open.length}</Label>
-        {fresh > 0 && <span className="label">{fresh} posted today</span>}
-      </div>
-      {fresh > 0 && <p className="small muted">Apply today: early applications get seen first.</p>}
-      <div className="list">
-        {shown.map((j) => (
-          <div key={j.id} className="li" style={{ gap: 10, alignItems: 'flex-start' }}>
-            <span style={{ width: 30, flex: 'none', textAlign: 'center', paddingTop: 2 }}><Freshness j={j} today={today} /></span>
-            <a className="stack grow" href={j.url} target="_blank" rel="noreferrer" style={{ gap: 4, minWidth: 0, color: 'inherit', textDecoration: 'none' }}>
-              <span className="strong" style={{ overflowWrap: 'anywhere' }}>{j.company}</span>
-              <span className="small" style={{ overflowWrap: 'anywhere' }}>{j.title}</span>
-              <span className="small muted" style={{ overflowWrap: 'anywhere' }}>{j.locations.slice(0, 2).join(' · ')}{j.closes ? ` · closes ${dueLabel(j.closes).replace(/^due /, '')}` : ''}</span>
-              <span className="row wrap" style={{ gap: 6 }}>{j.mba && <span className="chip sm dashed">MBA</span>}<ReferralFlag company={j.company} /></span>
-            </a>
-            <span className="row" style={{ gap: 6, flex: 'none' }}>
-              <button className="btn btn-sq" aria-label={`Add ${j.company}`} onClick={() => saveCompany(companyFromJob(j, newId(), new Date().toISOString(), today))}><Icon name="plus" size={18} glow={false} /></button>
-              <button className="btn btn-sq btn-ghost" aria-label={`Hide ${j.company}`} onClick={() => hideApmJob(j.id)}><Icon name="x" size={18} glow={false} /></button>
-            </span>
-          </div>
-        ))}
-      </div>
-      {open.length > shown.length && <button className="link" style={{ alignSelf: 'flex-start' }} onClick={() => setAll(true)}>Show all {open.length}</button>}
-    </section>
-  )
+/** Keeps the APM List feed loaded and adds its new jobs to the tracker. Mounted once in the app shell. */
+export function FeedSync() {
+  const jobs = useApmFeed((s) => s.jobs)
+  const ready = useStore((s) => s.loaded && !!s.appState)
+  useEffect(() => {
+    void loadApmFeed()
+    const vis = () => document.visibilityState === 'visible' && void loadApmFeed()
+    document.addEventListener('visibilitychange', vis)
+    return () => document.removeEventListener('visibilitychange', vis)
+  }, [])
+  useEffect(() => { if (ready) addFeedJobs(jobs) }, [ready, jobs])
+  return null
 }
 
 const pullCls = (p: Company['pull']) => (p === 'pulled' ? 'chip sm on' : p === 'pushed' ? 'chip sm dashed' : 'chip sm')
@@ -124,10 +81,18 @@ function CompanyRow({ c, onOpen }: { c: Company; onOpen: () => void }) {
   const today = localDate()
   const late = !!c.next_on && c.next_on <= today
   return (
-    <div className="li" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 10 }}>
-    <button style={{ display: 'flex', width: '100%', textAlign: 'left', alignItems: 'flex-start', gap: 10, background: 'none', border: 0, padding: 0, color: 'inherit', font: 'inherit' }} onClick={onOpen}>
+    <div className="li" style={{ alignItems: 'flex-start', gap: 8, opacity: c.job && !toApply(c) && !c.mitacs ? 0.6 : 1 }}>
+    {c.job ? (
+      <button className="btn btn-ghost btn-sq" style={{ minHeight: 40, width: 40, flex: 'none' }} onClick={() => toggleApplied(c.id)}
+        aria-label={toApply(c) ? `Mark ${c.name} applied` : `Mark ${c.name} not applied`} aria-pressed={!toApply(c)}>
+        <Icon name={toApply(c) ? 'circle' : 'circlecheck'} size={24} glow={toApply(c)} />
+      </button>
+    ) : <span style={{ width: 40, flex: 'none' }} />}
+    <div className="stack grow" style={{ gap: 10, minWidth: 0 }}>
+    <button style={{ display: 'flex', width: '100%', textAlign: 'left', alignItems: 'flex-start', gap: 10, background: 'none', border: 0, padding: '8px 0 0', color: 'inherit', font: 'inherit' }} onClick={onOpen}>
       <span className="stack grow" style={{ gap: 5, minWidth: 0 }}>
         <span className="row wrap" style={{ gap: 8 }}>
+          {freshCompany(c, today) && <span className="fire" role="img" aria-label="Posted today">🔥</span>}
           {c.priority && <span className={`prio p${c.priority}`}>P{c.priority}</span>}
           <span className="strong" style={{ overflowWrap: 'anywhere' }}>{c.name}</span>
           {c.pull && <span className={pullCls(c.pull)}>{labelOf(PULLS, c.pull)}</span>}
@@ -138,8 +103,9 @@ function CompanyRow({ c, onOpen }: { c: Company; onOpen: () => void }) {
         <span className="row wrap" style={{ gap: 6 }}>
           {c.job && <span className="chip sm">Job · {labelOf(JOB_STATUS, c.job.status)}{c.job.referral ? ' · referral' : ''}</span>}
           {c.mitacs && <span className="chip sm">Mitacs · {labelOf(MITACS_STATUS, c.mitacs.status)}</span>}
-          {c.job?.deadline && c.job.status === 'to_apply' && <span className={`chip sm${c.job.deadline <= today ? ' warn' : ''}`}>{dueLabel(c.job.deadline)}</span>}
-          {c.job && <ReferralFlag company={c.name} />}
+          {c.job?.deadline && c.job.status === 'to_apply' && (c.job.deadline < today ? <span className="chip sm dashed">Deadline passed?</span> : <span className={`chip sm${c.job.deadline === today ? ' warn' : ''}`}>{dueLabel(c.job.deadline)}</span>)}
+          {c.mba && <span className="chip sm dashed">MBA</span>}
+          <ReferralTag c={c} />
         </span>
         {c.next && (
           <span className="small" style={{ overflowWrap: 'anywhere' }}>
@@ -151,10 +117,10 @@ function CompanyRow({ c, onOpen }: { c: Company; onOpen: () => void }) {
     </button>
     {toApply(c) && (
       <div className="row wrap" style={{ gap: 8 }}>
-        <button className="chip" onClick={() => markApplied(c.id)}>✓ Applied</button>
         <button className="chip" onClick={() => markApplied(c.id, true)}>✓ Applied + Mitacs</button>
       </div>
     )}
+    </div>
     </div>
   )
 }
@@ -242,6 +208,9 @@ function CompanyEditor({ initial, isNew, industries, onClose }: { initial: Compa
       <Label>How it feels</Label>
       <Chips list={PULLS} value={c.pull} onChange={(pull) => set({ pull })} />
 
+      <Label>Referral</Label>
+      <Chips list={NEED_LABEL} value={needOf(c)} onChange={(n) => set({ referral_need: n ?? null })} />
+
       <Label>Next step</Label>
       <Chips list={NEXT_STEPS} value={c.next} onChange={(next) => set({ next, next_on: next ? c.next_on ?? today : null })} />
       {c.next && (
@@ -302,13 +271,10 @@ function CompanyEditor({ initial, isNew, industries, onClose }: { initial: Compa
 
 /** Today's plan: jobs posted today (apply on day 1) and company steps due today or late. */
 export function TodayCompanies() {
-  useFeed()
   const companies = useCompanies()
-  const { jobs } = useApmFeed()
-  const hidden = useStore((s) => s.appState?.settings?.apm_hidden)
   const today = localDate()
-  const list = dueSteps(companies, today)
-  const fresh = openJobs(jobs, companies, hidden).filter((j) => isFresh(j, today))
+  const fresh = companies.filter((c) => freshCompany(c, today))
+  const list = dueSteps(companies, today).filter((c) => !freshCompany(c, today))
   if (!list.length && !fresh.length) return null
   return (
     <>
@@ -319,7 +285,7 @@ export function TodayCompanies() {
             <span className="fire" role="img" aria-label="Posted today">🔥</span>
             <span className="stack grow" style={{ gap: 4, minWidth: 0 }}>
               <span className="strong">{fresh.length} new PM internship{fresh.length === 1 ? '' : 's'} posted today</span>
-              <span className="small">{fresh.map((j) => j.company).slice(0, 3).join(', ')}{fresh.length > 3 ? '…' : ''} · Apply today: early applications get seen first.</span>
+              <span className="small">{fresh.map((c) => c.name).slice(0, 3).join(', ')}{fresh.length > 3 ? '…' : ''} · Apply today: early applications get seen first.</span>
             </span>
             <Icon name="chevron" size={16} glow={false} />
           </a>

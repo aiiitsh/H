@@ -23,9 +23,13 @@ export const dueSteps = (cs: Company[], today = localDate()) =>
 /** Still to apply to. */
 export const toApply = (c: Company) => c.job?.status === 'to_apply'
 
-/** Companies to apply to first (by priority, then soonest deadline or step); then the rest by their next date. */
-export function sortCompanies(cs: Company[]): Company[] {
-  const when = (c: Company) => [c.job?.deadline, c.next_on].filter((d): d is string => !!d).sort()[0] ?? '9999'
+/** Companies to apply to first (by priority, then soonest deadline or step); then the rest by their next date.
+ *  A deadline already past probably means the posting closed, so it goes to the end. */
+export function sortCompanies(cs: Company[], today = localDate()): Company[] {
+  const when = (c: Company) => {
+    if (toApply(c) && c.job?.deadline && c.job.deadline < today) return '9998'
+    return [c.job?.deadline, c.next_on].filter((d): d is string => !!d).sort()[0] ?? '9999'
+  }
   return [...cs].sort((a, b) =>
     Number(toApply(b)) - Number(toApply(a))
     || (toApply(a) ? (a.priority ?? 4) - (b.priority ?? 4) : 0)

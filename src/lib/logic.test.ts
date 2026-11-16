@@ -5,6 +5,7 @@ import { nextCard, today as dailyToday } from './songdaily'
 import { byCategory, byWhat, cleanTag } from './focustags'
 import { describe, expect, it } from 'vitest'
 import { byIndustry, dueSteps, sortCompanies } from './companies'
+import { companyFromJob, jobsToAdd, type ApmJob } from './apmfeed'
 import { bundleOf, shouldReload } from './update'
 import { goalRun, milestoneOf, pendingMilestone, weeksAndDays } from './streakgoal'
 import { POMO_ROUNDS, advancePomo, freshPomo, startBreak, startWork } from './pomodoro'
@@ -611,5 +612,27 @@ describe('companies tracker', () => {
     const cs = [co('t', { industry: 'Automotive', pull: 'pulled' }), co('m', { industry: 'automotive', pull: 'pulled' }), co('b', { industry: 'Banking', pull: 'pushed' }), co('x')]
     const g = byIndustry(cs)
     expect(g.map((x) => [x.industry, x.companies.length, x.pulled, x.pushed])).toEqual([['Automotive', 2, 2, 0], ['Banking', 1, 0, 1], ['No industry yet', 1, 0, 0]])
+  })
+})
+
+describe('APM List jobs added automatically', () => {
+  const job = (id: string, company: string, title = 'PM Intern', posted = '2026-11-10'): ApmJob => ({ id, company, title, url: `u/${id}`, locations: ['Toronto, ON'], posted, closes: '2026-12-01', first_seen: posted })
+  const co = (extra: Partial<Company>): Company => ({ id: 'x', name: 'X', created_at: '', ...extra })
+  it('skips jobs already tracked, deleted, added by hand, or duplicated', () => {
+    const jobs = [job('a', 'Adobe'), job('b', 'Microsoft'), job('c', 'Salesforce'), job('c2', 'Salesforce'), job('d', 'Tesla'), job('e', 'Stripe')]
+    const companies = [co({ name: 'Microsoft' }), co({ name: 'Tesla', apm_id: 'd', job: { status: 'to_apply', role: 'PM Intern' } })]
+    expect(jobsToAdd(jobs, companies, ['e']).map((j) => j.id)).toEqual(['a', 'c'])
+  })
+  it('a job posted today is P1 with Apply today; older ones get no step', () => {
+    const today = '2026-11-16'
+    expect(companyFromJob(job('t', 'Adobe', 'PM Intern', today), 'id', '', today)).toMatchObject({ priority: 1, next: 'Apply', next_on: today, posted: today, apm_id: 't', job: { status: 'to_apply', link: 'u/t' } })
+    expect(companyFromJob(job('o', 'Adobe'), 'id', '', today)).toMatchObject({ priority: null, next: null, next_on: null })
+  })
+})
+
+describe('companies: closed postings go last', () => {
+  it('a to-apply company whose deadline passed sorts after open ones', () => {
+    const co = (id: string, deadline: string): Company => ({ id, name: id, created_at: '', job: { status: 'to_apply', deadline } })
+    expect(sortCompanies([co('gone', '2026-10-01'), co('open', '2026-12-01')], '2026-11-16').map((c) => c.id)).toEqual(['open', 'gone'])
   })
 })

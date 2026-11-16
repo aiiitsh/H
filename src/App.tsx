@@ -24,7 +24,7 @@ import { Streak } from './screens/Streak'
 import { Review } from './screens/Review'
 import { Settings } from './screens/Settings'
 import { Life } from './screens/Life'
-import { Companies } from './screens/Companies'
+import { Companies, FeedSync } from './screens/Companies'
 
 export type Route = 'home' | 'body' | 'learn' | 'work' | 'companies' | 'streak' | 'review' | 'life' | 'settings'
 const ROUTES: Route[] = ['home', 'body', 'learn', 'work', 'companies', 'streak', 'review', 'life', 'settings']
@@ -157,6 +157,7 @@ function Shell() {
       {loaded && hasApp && <StreakMilestone />}
       {loaded && hasApp && <DailySong />}
       <PomodoroTicker />
+      {loaded && hasApp && <FeedSync />}
       <Toasts />
     </div>
   )
