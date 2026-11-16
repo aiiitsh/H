@@ -13,6 +13,7 @@ import { InstallHint } from '../components/InstallHint'
 import { dayPlan, tomorrowPreview, trainingPlan, type PlanItem } from '../lib/plan'
 import { WeekPlanPanel } from '../components/WeekPlan'
 import { TodayTasks, useTodayTaskCount } from '../components/Tasks'
+import { TodayCompanies } from './Companies'
 import { SLOT_ICON, SLOT_LABEL } from '../lib/weekplan'
 import { countdownText, daysToNext, nextStep } from '../lib/life'
 
@@ -194,6 +195,7 @@ function TodayPlan() {
       <div className="panel-head"><Label>Today's plan</Label><span className="label">{done}/{total} done</span></div>
       <div className="list">{byDone(core).map((it) => <PlanRow key={it.key} it={it} />)}</div>
       <TodayTasks />
+      <TodayCompanies />
       <div className="label" style={{ margin: '14px 0 4px' }}>If you feel like it</div>
       <div className="list">{byDone(extra).map((it) => <PlanRow key={it.key} it={it} />)}</div>
     </section>

@@ -81,6 +81,8 @@ export interface Settings {
   week_plans?: Record<string, WeekPlan>
   /** To-do list. */
   tasks?: Task[]
+  /** Companies tracker: job applications and Mitacs outreach per company */
+  companies?: Company[]
   /** Focus categories (Afflo, Study, ...). */
   focus_categories?: string[]
   /** Labels for focus blocks, by block id. */
@@ -128,6 +130,30 @@ export interface LifePlan {
   /** index of the step Ahmed is at now */
   current: number
   updated_at?: string
+}
+
+export type CompanyJobStatus = 'to_apply' | 'applied' | 'interview' | 'offer' | 'no'
+export type MitacsStatus = 'to_contact' | 'emailed' | 'replied' | 'meeting' | 'project' | 'no'
+export type Pull = 'pulled' | 'neutral' | 'pushed'
+
+export interface Company {
+  id: string
+  name: string
+  industry?: string | null
+  city?: string | null
+  /** how the company felt: pulled, neutral or pushed away, with a one-line why */
+  pull?: Pull | null
+  pull_note?: string | null
+  /** job application track (null = not applying there) */
+  job?: { role?: string | null; link?: string | null; deadline?: string | null; referral?: boolean; status: CompanyJobStatus } | null
+  /** Mitacs outreach track (null = not reaching out) */
+  mitacs?: { contact?: string | null; status: MitacsStatus; last_contact?: string | null } | null
+  /** next step and its date (shows in Today's plan when due) */
+  next?: string | null
+  next_on?: string | null
+  priority?: Priority | null
+  notes?: string | null
+  created_at: string
 }
 
 export interface Task {

@@ -2,7 +2,7 @@
 // the rest are drawn here in the same weight.
 import type { LucideIcon } from 'lucide-react'
 import {
-  ArrowBigUpDash, ArrowUpFromLine, BicepsFlexed, Bug, ChevronsUp, CornerLeftUp, DoorOpen, Dumbbell,
+  ArrowBigUpDash, ArrowUpFromLine, Building2, BicepsFlexed, Bug, ChevronsUp, CornerLeftUp, DoorOpen, Dumbbell,
   Circle, CircleCheck, Dog, Expand, Footprints, Hammer, Hand, ListTodo, Luggage, Milestone, Mountain, MoveHorizontal, PersonStanding, Shield, Timer, UserRound,
 } from 'lucide-react'
 
@@ -29,6 +29,7 @@ const LUCIDE: Record<string, LucideIcon> = {
   hike: Mountain,
   task: ListTodo,
   life: Milestone,
+  company: Building2,
   circle: Circle,
   circlecheck: CircleCheck,
 }

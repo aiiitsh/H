@@ -4,6 +4,7 @@ import { buildMonthText, buildText, targetLines } from './export'
 import { nextCard, today as dailyToday } from './songdaily'
 import { byCategory, byWhat, cleanTag } from './focustags'
 import { describe, expect, it } from 'vitest'
+import { byIndustry, dueSteps, sortCompanies } from './companies'
 import { bundleOf, shouldReload } from './update'
 import { goalRun, milestoneOf, pendingMilestone, weeksAndDays } from './streakgoal'
 import { POMO_ROUNDS, advancePomo, freshPomo, startBreak, startWork } from './pomodoro'
@@ -17,7 +18,7 @@ import { restAfterSet, restBetween } from './rest'
 import { kgToLb } from './format'
 import type { Data } from './store'
 import { DAYS, EX } from '../data/program'
-import type { HabitEntry, Task, Workout, WorkoutSet } from './types'
+import type { Company, HabitEntry, Task, Workout, WorkoutSet } from './types'
 import { sortTasks, splitPriority, tasksForToday } from './tasks'
 import { countdownText, daysToNext, nextStep, parsePlan, quranTrack, stepColor, stepState, timelinePct } from './life'
 
@@ -592,5 +593,22 @@ describe('daily targets', () => {
   })
   it('no separate stretches item: they are inside the gym session', () => {
     expect(dayPlan(base(), '2026-11-09').find((i) => i.key === 'routine')).toBeUndefined()
+  })
+})
+
+describe('companies tracker', () => {
+  const co = (id: string, extra: Partial<Company> = {}): Company => ({ id, name: id, created_at: '2026-11-16T12:00:00Z', ...extra })
+  it('shows steps due today or late, oldest first', () => {
+    const cs = [co('a', { next: 'x', next_on: '2026-11-17' }), co('b', { next: 'y', next_on: '2026-11-16' }), co('c', { next: 'z', next_on: '2026-11-10' }), co('d', { next_on: '2026-11-01' })]
+    expect(dueSteps(cs, '2026-11-16').map((c) => c.id)).toEqual(['c', 'b'])
+  })
+  it('sorts by next step, then deadline, then priority', () => {
+    const cs = [co('none', { priority: 1 }), co('dl', { job: { status: 'to_apply', deadline: '2026-11-20' } }), co('step', { next_on: '2026-11-18' }), co('none2', { priority: 2 })]
+    expect(sortCompanies(cs).map((c) => c.id)).toEqual(['step', 'dl', 'none', 'none2'])
+  })
+  it('groups industries by how they felt, strongest pull first', () => {
+    const cs = [co('t', { industry: 'Automotive', pull: 'pulled' }), co('m', { industry: 'automotive', pull: 'pulled' }), co('b', { industry: 'Banking', pull: 'pushed' }), co('x')]
+    const g = byIndustry(cs)
+    expect(g.map((x) => [x.industry, x.companies.length, x.pulled, x.pushed])).toEqual([['Automotive', 2, 2, 0], ['Banking', 1, 0, 1], ['No industry yet', 1, 0, 0]])
   })
 })

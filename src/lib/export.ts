@@ -10,6 +10,7 @@ import { WEEKDAYS, planFor, slotStatus, slotText, unplanned } from './weekplan'
 import { doneBetween, dueLabel, isOpen, sortTasks } from './tasks'
 import { byCategory, byWhat, tagOf } from './focustags'
 import { lifeText } from './life'
+import { JOB_STATUS, MITACS_STATUS, PULLS, byIndustry, labelOf, sortCompanies } from './companies'
 import { amountSummary, quranStreak } from './qurandaily'
 
 export function weightChanges(data: Data, w: Pick<WeekStats, 'sets' | 'workouts'>) {
@@ -330,6 +331,21 @@ export function buildMonthText(data: Data, today = localDate()): string {
     const late = open.filter((t) => t.due && t.due < today)
     L.push(`Open: ${open.length}${late.length ? ` · ${late.length} late` : ''}`)
     for (const t of open.slice(0, 30)) L.push(`  - ${t.priority ? `[P${t.priority}] ` : ''}${t.title}${t.due ? ` (${dueLabel(t.due, today)})` : ''}`)
+  }
+
+  // Companies tracker
+  const companies = settings?.companies ?? []
+  if (companies.length) {
+    h('Companies (job applications + Mitacs outreach)')
+    const jobs = companies.filter((c) => c.job)
+    const outreach = companies.filter((c) => c.mitacs)
+    L.push(`${companies.length} companies · jobs: ${JOB_STATUS.map(([k, l]) => `${l} ${jobs.filter((c) => c.job!.status === k).length}`).join(', ')}`)
+    L.push(`Mitacs: ${MITACS_STATUS.map(([k, l]) => `${l} ${outreach.filter((c) => c.mitacs!.status === k).length}`).join(', ')}`)
+    L.push('Pull by industry: ' + (byIndustry(companies).map((g) => `${g.industry} (${g.pulled} pulled, ${g.neutral} neutral, ${g.pushed} pushed)`).join('; ') || 'none'))
+    for (const c of sortCompanies(companies)) {
+      const parts = [c.job && `job ${labelOf(JOB_STATUS, c.job.status)}${c.job.deadline ? ` (deadline ${c.job.deadline})` : ''}`, c.mitacs && `Mitacs ${labelOf(MITACS_STATUS, c.mitacs.status)}`, c.pull && labelOf(PULLS, c.pull), c.next && `next: ${c.next}${c.next_on ? ` by ${c.next_on}` : ''}`].filter(Boolean)
+      L.push(`  - ${c.name}${c.industry ? ` [${c.industry}]` : ''}: ${parts.join(' · ')}`)
+    }
   }
 
   // Learn

@@ -10,7 +10,7 @@ import { swimTarget } from './plan'
 import { cleanTag, tagLabel } from './focustags'
 import { amountLabel, type QuranAmount } from './qurandaily'
 import { splitPriority } from './tasks'
-import type { ActiveSession, AppState, DayCode, Feel, FocusBlock, FocusTag, HabitEntry, LifePlan, LifeStep, Log, LogType, PlanSlot, Priority, QuranEvent, StepState, Target, Task, WeekPlan, Workout, WorkoutSet } from './types'
+import type { ActiveSession, AppState, DayCode, Feel, FocusBlock, FocusTag, HabitEntry, LifePlan, LifeStep, Log, LogType, PlanSlot, Priority, QuranEvent, Company, StepState, Target, Task, WeekPlan, Workout, WorkoutSet } from './types'
 
 // ---------- generic logs ----------
 
@@ -600,6 +600,24 @@ export function updateTask(id: string, patch: Partial<Task>) {
 export function toggleTask(id: string) {
   const t = tasksNow().find((x) => x.id === id)
   if (t) updateTask(id, { done_at: t.done_at ? null : nowIso() })
+}
+
+// ---------- companies ----------
+
+const companiesNow = () => get().appState?.settings.companies ?? []
+
+export function saveCompany(c: Company) {
+  const list = companiesNow()
+  const exists = list.some((x) => x.id === c.id)
+  patchSettings({ companies: exists ? list.map((x) => (x.id === c.id ? c : x)) : [...list, c] })
+  toast(exists ? `${c.name} saved` : `${c.name} added`)
+}
+
+export function deleteCompany(id: string) {
+  const prev = companiesNow()
+  const c = prev.find((x) => x.id === id)
+  patchSettings({ companies: prev.filter((x) => x.id !== id) })
+  toast(`${c?.name ?? 'Company'} deleted`, () => patchSettings({ companies: prev }))
 }
 
 export function deleteTask(id: string) {

@@ -24,14 +24,16 @@ import { Streak } from './screens/Streak'
 import { Review } from './screens/Review'
 import { Settings } from './screens/Settings'
 import { Life } from './screens/Life'
+import { Companies } from './screens/Companies'
 
-export type Route = 'home' | 'body' | 'learn' | 'work' | 'streak' | 'review' | 'life' | 'settings'
-const ROUTES: Route[] = ['home', 'body', 'learn', 'work', 'streak', 'review', 'life', 'settings']
+export type Route = 'home' | 'body' | 'learn' | 'work' | 'companies' | 'streak' | 'review' | 'life' | 'settings'
+const ROUTES: Route[] = ['home', 'body', 'learn', 'work', 'companies', 'streak', 'review', 'life', 'settings']
 const TABS: { r: Route; icon: string; label: string }[] = [
   { r: 'home', icon: 'tab-home', label: 'Home' },
   { r: 'body', icon: 'tab-body', label: 'Body' },
   { r: 'learn', icon: 'tab-learn', label: 'Learn' },
   { r: 'work', icon: 'tab-work', label: 'Work' },
+  { r: 'companies', icon: 'company', label: 'Companies' },
   { r: 'streak', icon: 'tab-streak', label: 'Streak' },
   { r: 'review', icon: 'tab-review', label: 'Review' },
   { r: 'life', icon: 'life', label: 'Life' },
@@ -162,12 +164,12 @@ function Shell() {
 
 const SCREENS: Record<Route, () => ReactNode> = {
   home: () => <Home />, body: () => <Body />, learn: () => <Learn />, work: () => <Work />,
-  streak: () => <Streak />, review: () => <Review />, life: () => <Life />, settings: () => <Settings />,
+  companies: () => <Companies />, streak: () => <Streak />, review: () => <Review />, life: () => <Life />, settings: () => <Settings />,
 }
 
 // ---------- native-feel navigation: slide transitions + swipe between tabs ----------
 
-const ORDER: Route[] = ['home', 'body', 'learn', 'work', 'streak', 'review', 'life']
+const ORDER: Route[] = ['home', 'body', 'learn', 'work', 'companies', 'streak', 'review', 'life']
 const rank = (r: Route) => (r === 'settings' ? 99 : ORDER.indexOf(r))
 type Layer = { r: Route; id: number; cls: string }
 
@@ -233,7 +235,7 @@ function TabLink({ t, on }: { t: { r: Route; icon: string; label: string }; on: 
   return (
     <a className={`tab${on ? ' on' : ''}`} href={`#/${t.r}`} aria-current={on ? 'page' : undefined} style={{ textDecoration: 'none' }}>
       <Icon name={t.icon} size={24} />
-      <span className="label">{t.label}</span>
+      <span className={`label${t.label.length > 7 ? ' long' : ''}`}>{t.label}</span>
     </a>
   )
 }
