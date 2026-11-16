@@ -8,20 +8,16 @@ import { OFFICE_LABEL } from '../data/canadaOffices'
 import { dueLabel } from '../lib/tasks'
 import { addDays, localDate } from '../lib/time'
 import type { Company, Priority } from '../lib/types'
-import { Segmented } from '../components/QuickLog'
 import { Label, Sheet, Toggle } from '../components/ui'
 import { Icon } from '../components/Icon'
-
-type View = 'all' | 'jobs' | 'mitacs' | 'industries'
 
 const useCompanies = () => useStore((s) => s.appState?.settings?.companies) ?? []
 
 /** One place for every company: the job application and the Mitacs outreach side by side. */
 export function Companies() {
   const companies = useCompanies()
-  const [view, setView] = useState<View>('all')
   const [edit, setEdit] = useState<{ c: Company; isNew: boolean } | null>(null)
-  const list = sortCompanies(companies).filter((c) => (view === 'jobs' ? !!c.job : view === 'mitacs' ? !!c.mitacs : true))
+  const list = sortCompanies(companies)
   const applied = companies.filter((c) => c.job && c.job.status !== 'to_apply').length
   const reached = companies.filter((c) => c.mitacs && c.mitacs.status !== 'to_contact').length
 
@@ -37,15 +33,11 @@ export function Companies() {
         <Icon name="plus" size={18} glow={false} /> Add company
       </button>
 
-      <Segmented value={view} options={[['all', 'All'], ['jobs', 'Jobs'], ['mitacs', 'Mitacs'], ['industries', 'Industries']]} onChange={setView} />
-
-      {view === 'industries' ? <Industries companies={companies} onOpen={(c) => setEdit({ c, isNew: false })} /> : (
-        <section className="panel">
-          {list.length === 0 ? <div className="empty">{view === 'mitacs' ? 'No Mitacs outreach yet.' : 'No companies yet.'}</div> : (
-            <div className="list">{list.map((c) => <CompanyRow key={c.id} c={c} onOpen={() => setEdit({ c, isNew: false })} />)}</div>
-          )}
-        </section>
-      )}
+      <section className="panel">
+        {list.length === 0 ? <div className="empty">No companies yet.</div> : (
+          <div className="list">{list.map((c) => <CompanyRow key={c.id} c={c} onOpen={() => setEdit({ c, isNew: false })} />)}</div>
+        )}
+      </section>
 
       <Sheet open={!!edit} onClose={() => setEdit(null)} title={edit?.isNew ? 'Add company' : edit?.c.name}>
         {edit && <CompanyEditor key={edit.c.id} initial={edit.c} isNew={edit.isNew} industries={byIndustry(companies).map((g) => g.industry).filter((i) => i !== NO_INDUSTRY)} onClose={() => setEdit(null)} />}
@@ -132,35 +124,6 @@ function CompanyRow({ c, onOpen }: { c: Company; onOpen: () => void }) {
     )}
     </div>
     </div>
-  )
-}
-
-/** Industries with how their companies felt: the pattern for choosing where to hunt for Mitacs. */
-function Industries({ companies, onOpen }: { companies: Company[]; onOpen: (c: Company) => void }) {
-  const groups = byIndustry(companies)
-  if (!groups.length) return <section className="panel"><div className="empty">Add companies and an industry to see the pattern.</div></section>
-  return (
-    <>
-      {groups.map((g) => (
-        <section key={g.industry} className="panel stack" style={{ gap: 10 }}>
-          <div className="row between" style={{ gap: 8 }}>
-            <span className={g.industry === NO_INDUSTRY ? 'dim' : 'strong'}>{g.industry}</span>
-            <span className="label">{g.pulled} pulled · {g.neutral} neutral · {g.pushed} pushed</span>
-          </div>
-          <div className="list">
-            {g.companies.map((c) => (
-              <button key={c.id} className="li" style={{ width: '100%', textAlign: 'left', gap: 8, alignItems: 'flex-start' }} onClick={() => onOpen(c)}>
-                <span className="stack grow" style={{ gap: 3, minWidth: 0 }}>
-                  <span>{c.name}</span>
-                  {c.pull_note && <span className="small muted" style={{ overflowWrap: 'anywhere' }}>{c.pull_note}</span>}
-                </span>
-                {c.pull && <span className={pullCls(c.pull)}>{labelOf(PULLS, c.pull)}</span>}
-              </button>
-            ))}
-          </div>
-        </section>
-      ))}
-    </>
   )
 }
 
