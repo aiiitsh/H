@@ -12,7 +12,7 @@ import type { PlanSlot } from './types'
 
 export type PlanAction =
   | { kind: 'session'; day: DayCode }
-  | { kind: 'sheet'; sheet: 'swim' | 'routine' | 'quran' | 'quranDaily' | 'french' | 'focus' | 'hike' | 'cardio' | 'protein' }
+  | { kind: 'sheet'; sheet: 'swim' | 'routine' | 'quran' | 'quranDaily' | 'french' | 'focus' | 'hike' | 'cardio' | 'protein' | 'carConnect' }
   | { kind: 'life' }
   | { kind: 'monthCheckin' }
 
@@ -216,6 +216,16 @@ export function dayPlan(data: Data, d = localDate()): PlanItem[] {
       : `${QURAN_AMOUNTS.map(([, label]) => label.toLowerCase()).join(', ')}${streak ? ` · ${streak}-day streak` : ''}`,
     done: q.length > 0, action: { kind: 'sheet', sheet: 'quranDaily' },
   })
+
+  // Mondays: send LinkedIn connections to people at the car companies in the tracker (for Mitacs).
+  if (dow(d) === 1) {
+    const done = !!data.appState?.settings?.car_connect_days?.includes(d)
+    const cars = (data.appState?.settings?.companies ?? []).filter((c) => c.industry?.toLowerCase() === 'automotive').length
+    items.push({
+      key: 'car_connect', icon: 'company', title: 'LinkedIn: connect with people at car companies',
+      sub: done ? '✓ Done this week' : `Every Monday · ${cars} companies`, done, action: { kind: 'sheet', sheet: 'carConnect' },
+    })
+  }
 
   // Sundays (reset day): read the whole life plan once a week.
   if (dow(d) === 0) {

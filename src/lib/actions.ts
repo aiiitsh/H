@@ -659,6 +659,21 @@ export function syncCompanies(jobs: ApmJob[]) {
   patchSettings({ companies: keep, ...(gone.length ? { apm_hidden: [...hidden, ...gone].slice(-500) } : {}) })
 }
 
+/** Monday LinkedIn round for car companies: done for today. */
+export function markCarConnect(d = localDate()) {
+  const days = get().appState?.settings.car_connect_days ?? []
+  if (!days.includes(d)) patchSettings({ car_connect_days: [...days, d].slice(-60) })
+}
+
+/** LinkedIn connections sent to people at this company (Mitacs status). */
+export function markLinkedinSent(id: string) {
+  const prev = companiesNow()
+  const c = prev.find((x) => x.id === id)
+  if (!c) return
+  patchSettings({ companies: prev.map((x) => (x.id === id ? { ...x, mitacs: { contact: x.mitacs?.contact ?? null, status: 'linkedin', last_contact: localDate() } } : x)) })
+  toast(`${c.name}: LinkedIn sent`, () => patchSettings({ companies: prev }))
+}
+
 /** Reached out about Mitacs (for a posting whose deadline passed). */
 export function markMitacsReached(id: string) {
   const prev = companiesNow()

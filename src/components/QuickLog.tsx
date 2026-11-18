@@ -4,13 +4,13 @@ import { Icon } from './Icon'
 import { Sheet, Stepper, Label } from './ui'
 import { QuranBrowser } from './Quran'
 import { CARDIO, DAILY_ROUTINE, DURATIONS, FRENCH_ACTIVITIES, FRENCH_MINUTES, PROTEIN_FOODS, ROUTINE_TIP, SWIM, SWIM_HOW } from '../data/program'
-import { deleteEntry, logCardio, logFrench, logHike, logProtein, logQuranCheckin, logRoutine, logSwim, routineToday, startFocus, swimPlan } from '../lib/actions'
+import { deleteEntry, markCarConnect, markLinkedinSent, logCardio, logFrench, logHike, logProtein, logQuranCheckin, logRoutine, logSwim, routineToday, startFocus, swimPlan } from '../lib/actions'
 import { QURAN_AMOUNTS, amountLabel, daysDone, isQuranCheckin, quranStreak } from '../lib/qurandaily'
 import { proteinGoal, proteinOn } from '../lib/plan'
 import { useStore } from '../lib/store'
 import { fmtDur, localDate } from '../lib/time'
 
-export type SheetKey = 'cardio' | 'swim' | 'run' | 'squash' | 'hike' | 'routine' | 'quran' | 'quranDaily' | 'french' | 'focus' | 'protein'
+export type SheetKey = 'cardio' | 'swim' | 'run' | 'squash' | 'hike' | 'routine' | 'quran' | 'quranDaily' | 'french' | 'focus' | 'protein' | 'carConnect'
 
 export const useSheet = create<{ open: SheetKey | null }>(() => ({ open: null }))
 export const openSheet = (k: SheetKey) => useSheet.setState({ open: k })
@@ -160,6 +160,35 @@ function RoutineSheet() {
   )
 }
 
+/** Monday: the car companies in the tracker, each with a LinkedIn people search and a "sent" tap. */
+function CarConnectSheet() {
+  const companies = useStore((s) => s.appState?.settings?.companies) ?? []
+  const cars = companies.filter((c) => c.industry?.toLowerCase() === 'automotive').sort((a, b) => a.name.localeCompare(b.name))
+  const today = localDate()
+  if (!cars.length) return <div className="empty">No companies with the industry Automotive yet.</div>
+  return (
+    <div className="stack" style={{ gap: 14 }}>
+      <p className="small muted">Send a few connections at each company, then tap Sent.</p>
+      <div className="list">
+        {cars.map((c) => {
+          const sent = c.mitacs?.status && c.mitacs.status !== 'to_contact' && c.mitacs.last_contact === today
+          return (
+            <div key={c.id} className="li" style={{ gap: 8, alignItems: 'center' }}>
+              <span className="stack grow" style={{ gap: 3, minWidth: 0 }}>
+                <span className="strong">{c.name}</span>
+                {c.notes && <span className="small muted" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.notes}</span>}
+              </span>
+              <a className="chip sm" href={`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(c.name)}`} target="_blank" rel="noreferrer">Find people</a>
+              <button className={`chip sm${sent ? ' on' : ''}`} onClick={() => !sent && markLinkedinSent(c.id)}>{sent ? '✓ Sent' : 'Sent'}</button>
+            </div>
+          )
+        })}
+      </div>
+      <button className="btn btn-filled btn-big btn-caps" onClick={() => { markCarConnect(); close() }}>Done for this week</button>
+    </div>
+  )
+}
+
 function QuranSheet() {
   return <QuranBrowser />
 }
@@ -239,7 +268,7 @@ function CardioPicker() {
 }
 
 const TITLES: Record<SheetKey, string> = {
-  cardio: 'What did you do?', swim: 'Log swim', run: 'Run', squash: 'Squash', hike: 'Log hike', routine: 'Posture reset', quran: 'Quran', quranDaily: 'Quran today', french: 'French', focus: 'Focus', protein: 'Protein',
+  cardio: 'What did you do?', swim: 'Log swim', run: 'Run', squash: 'Squash', hike: 'Log hike', routine: 'Posture reset', quran: 'Quran', quranDaily: 'Quran today', carConnect: 'Car companies · LinkedIn', french: 'French', focus: 'Focus', protein: 'Protein',
 }
 
 export function QuickSheets() {
@@ -254,6 +283,7 @@ export function QuickSheets() {
       {open === 'routine' && <RoutineSheet />}
       {open === 'quran' && <QuranSheet />}
       {open === 'quranDaily' && <QuranDailySheet />}
+      {open === 'carConnect' && <CarConnectSheet />}
       {open === 'french' && <FrenchSheet />}
       {open === 'focus' && <FocusSheet />}
     </Sheet>

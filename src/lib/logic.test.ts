@@ -655,3 +655,12 @@ describe('companies: Canadian office and dead ends', () => {
     expect(isDeadEnd(co('Appian', { canada_office: 'no', job: { status: 'no' } }), today)).toBe(true)
   })
 })
+
+describe('Monday car-company LinkedIn round', () => {
+  const base = (days?: string[]): Data => ({ appState: { settings: { car_connect_days: days, companies: [{ id: 'g', name: 'GM', industry: 'Automotive', created_at: '' }, { id: 'a', name: 'Adobe', created_at: '' }] } } as any, targets: {}, quran: [], logs: [], focus: [], workouts: [], sets: [], habits: [], reviews: [] })
+  it('shows on Mondays only, counting automotive companies', () => {
+    expect(dayPlan(base(), '2026-11-23').find((i) => i.key === 'car_connect')).toMatchObject({ done: false, sub: 'Every Monday · 1 companies', action: { kind: 'sheet', sheet: 'carConnect' } })
+    expect(dayPlan(base(), '2026-11-24').find((i) => i.key === 'car_connect')).toBeUndefined()
+    expect(dayPlan(base(['2026-11-23']), '2026-11-23').find((i) => i.key === 'car_connect')!.done).toBe(true)
+  })
+})
