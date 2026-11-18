@@ -1,3 +1,4 @@
+import { isRacing } from './companies'
 // The daily plan adapts to what you actually did: which training day is most overdue, what your
 // hikes, runs, squash and swims already worked, and when you need recovery.
 import { DAYS, DAY_ORDER, EX, GOALS, PROTEIN_G, SWIM } from '../data/program'
@@ -217,12 +218,12 @@ export function dayPlan(data: Data, d = localDate()): PlanItem[] {
     done: q.length > 0, action: { kind: 'sheet', sheet: 'quranDaily' },
   })
 
-  // Mondays: send LinkedIn connections to people at the car companies in the tracker (for Mitacs).
+  // Mondays: LinkedIn round for the racing & exotic car companies in the tracker.
   if (dow(d) === 1) {
     const done = !!data.appState?.settings?.car_connect_days?.includes(d)
-    const cars = (data.appState?.settings?.companies ?? []).filter((c) => c.industry?.toLowerCase() === 'automotive').length
+    const cars = (data.appState?.settings?.companies ?? []).filter(isRacing).length
     items.push({
-      key: 'car_connect', icon: 'company', title: 'LinkedIn: connect with people at car companies',
+      key: 'car_connect', icon: 'company', title: 'LinkedIn: racing & exotic car companies',
       sub: done ? '✓ Done this week' : `Every Monday · ${cars} companies`, done, action: { kind: 'sheet', sheet: 'carConnect' },
     })
   }

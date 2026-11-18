@@ -64,6 +64,10 @@ export function byIndustry(cs: Company[]): IndustryGroup[] {
     || (b.pulled - b.pushed) - (a.pulled - a.pushed) || b.companies.length - a.companies.length || a.industry.localeCompare(b.industry))
 }
 
+/** The Monday LinkedIn round covers only this industry (his choice, 18 Nov 2026). */
+export const RACING_INDUSTRY = 'Racing & exotic cars'
+export const isRacing = (c: Company) => c.industry?.trim().toLowerCase() === RACING_INDUSTRY.toLowerCase()
+
 export const blankCompany = (id: string, now: string): Company => ({
   id, name: '', industry: null, city: null, pull: null, pull_note: null,
   job: { role: null, link: null, deadline: null, referral: false, status: 'to_apply' }, mitacs: null,

@@ -1,3 +1,4 @@
+import { isRacing, RACING_INDUSTRY } from '../lib/companies'
 import { useState } from 'react'
 import { create } from 'zustand'
 import { Icon } from './Icon'
@@ -160,15 +161,19 @@ function RoutineSheet() {
   )
 }
 
-/** Monday: the car companies in the tracker, each with a LinkedIn people search and a "sent" tap. */
+/** Monday: the racing & exotic car companies, with LinkedIn searches for directors and PMs and a "sent" tap. */
 function CarConnectSheet() {
   const companies = useStore((s) => s.appState?.settings?.companies) ?? []
-  const cars = companies.filter((c) => c.industry?.toLowerCase() === 'automotive').sort((a, b) => a.name.localeCompare(b.name))
+  const cars = companies.filter(isRacing).sort((a, b) => a.name.localeCompare(b.name))
   const today = localDate()
-  if (!cars.length) return <div className="empty">No companies with the industry Automotive yet.</div>
+  if (!cars.length) return <div className="empty">No companies with the industry {RACING_INDUSTRY} yet.</div>
   return (
     <div className="stack" style={{ gap: 14 }}>
-      <p className="small muted">Send a few connections at each company, then tap Sent.</p>
+      <div className="small muted stack" style={{ gap: 4 }}>
+        <span><b>Directors &amp; managers:</b> be friendly, ask if they have a need for a project.</span>
+        <span><b>Product managers:</b> only ask who you should contact.</span>
+        <span>Never mention Mitacs.</span>
+      </div>
       <div className="list">
         {cars.map((c) => {
           const sent = c.mitacs?.status && c.mitacs.status !== 'to_contact' && c.mitacs.last_contact === today
@@ -178,7 +183,8 @@ function CarConnectSheet() {
                 <span className="strong">{c.name}</span>
                 {c.notes && <span className="small muted" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.notes}</span>}
               </span>
-              <a className="chip sm" href={`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(c.name)}`} target="_blank" rel="noreferrer">Find people</a>
+              <a className="chip sm" href={`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(c.name + ' director')}`} target="_blank" rel="noreferrer">Directors</a>
+              <a className="chip sm" href={`https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(c.name + ' product manager')}`} target="_blank" rel="noreferrer">PMs</a>
               <button className={`chip sm${sent ? ' on' : ''}`} onClick={() => !sent && markLinkedinSent(c.id)}>{sent ? '✓ Sent' : 'Sent'}</button>
             </div>
           )
@@ -268,7 +274,7 @@ function CardioPicker() {
 }
 
 const TITLES: Record<SheetKey, string> = {
-  cardio: 'What did you do?', swim: 'Log swim', run: 'Run', squash: 'Squash', hike: 'Log hike', routine: 'Posture reset', quran: 'Quran', quranDaily: 'Quran today', carConnect: 'Car companies · LinkedIn', french: 'French', focus: 'Focus', protein: 'Protein',
+  cardio: 'What did you do?', swim: 'Log swim', run: 'Run', squash: 'Squash', hike: 'Log hike', routine: 'Posture reset', quran: 'Quran', quranDaily: 'Quran today', carConnect: 'Racing & exotic cars · LinkedIn', french: 'French', focus: 'Focus', protein: 'Protein',
 }
 
 export function QuickSheets() {
