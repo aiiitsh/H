@@ -1,4 +1,5 @@
 import { isRacing } from './companies'
+import { revisionLabel, todayWords, WORDS_PER_DAY } from './vocab'
 // The daily plan adapts to what you actually did: which training day is most overdue, what your
 // hikes, runs, squash and swims already worked, and when you need recovery.
 import { DAYS, DAY_ORDER, EX, GOALS, PROTEIN_G, SWIM } from '../data/program'
@@ -13,7 +14,7 @@ import type { PlanSlot } from './types'
 
 export type PlanAction =
   | { kind: 'session'; day: DayCode }
-  | { kind: 'sheet'; sheet: 'swim' | 'routine' | 'quran' | 'quranDaily' | 'french' | 'focus' | 'hike' | 'cardio' | 'protein' | 'carConnect' }
+  | { kind: 'sheet'; sheet: 'swim' | 'routine' | 'quran' | 'quranDaily' | 'french' | 'focus' | 'hike' | 'cardio' | 'protein' | 'carConnect' | 'words' | 'quranRevision' }
   | { kind: 'life' }
   | { kind: 'monthCheckin' }
 
@@ -217,6 +218,26 @@ export function dayPlan(data: Data, d = localDate()): PlanItem[] {
       : `${QURAN_AMOUNTS.map(([, label]) => label.toLowerCase()).join(', ')}${streak ? ` · ${streak}-day streak` : ''}`,
     done: q.length > 0, action: { kind: 'sheet', sheet: 'quranDaily' },
   })
+
+  // Quran revision: this week's page, every day until he sets a new one.
+  const rev = data.appState?.settings?.quran_revision
+  if (rev) {
+    const read = !!data.appState?.settings?.quran_revision_days?.includes(d)
+    items.push({
+      key: 'quran_revision', icon: 'quran', title: 'Quran revision', sub: read ? `✓ ${revisionLabel(rev)}` : revisionLabel(rev),
+      done: read, action: { kind: 'sheet', sheet: 'quranRevision' },
+    })
+  }
+
+  // French words: 5 of his own words a day.
+  const vocab = data.appState?.settings?.vocab ?? []
+  const wd = todayWords(data.appState?.settings?.vocab_daily, vocab, d)
+  if (wd) {
+    items.push({
+      key: 'french_words', icon: 'french', title: 'French words', sub: wd.done ? `✓ ${wd.ids.length} words revised` : `${Math.min(WORDS_PER_DAY, vocab.length)} words · ${vocab.length} saved`,
+      done: wd.done, action: { kind: 'sheet', sheet: 'words' },
+    })
+  }
 
   // Mondays: LinkedIn round for the racing & exotic car companies in the tracker.
   if (dow(d) === 1) {

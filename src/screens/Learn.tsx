@@ -9,6 +9,7 @@ import { Label, Stepper } from '../components/ui'
 import { QuranBrowser, surahStatus } from '../components/Quran'
 import { Segmented } from '../components/QuickLog'
 import { SongCards } from '../components/SongCards'
+import { MyWords, RevisionCard } from '../components/DailyReview'
 
 type LearnPage = 'main' | 'songs'
 
@@ -67,6 +68,7 @@ function Quran() {
         <Stat v={counts.learned} k="Learned" />
         <Stat v={thisWeek} k="This week" />
       </div>
+      <RevisionCard />
       <QuranBrowser />
     </section>
   )
@@ -100,6 +102,7 @@ function French() {
         <Stat v={w.frenchDays} k="Days" />
         <Stat v={units.length} k="Units done" />
       </div>
+      <MyWords />
       {units.length > 0 && (
         <div className="stack">
           <Label>Units completed</Label>

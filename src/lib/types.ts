@@ -99,7 +99,19 @@ export interface Settings {
   life_plan?: LifePlan
   /** Daily French song card: which card is today's and whether it was read. */
   song_daily?: SongDaily
+  /** French words he added (French → English); 5 a day show after the song card */
+  vocab?: VocabWord[]
+  /** Today's 5 words and whether they were revised */
+  vocab_daily?: VocabDaily
+  /** This week's Quran revision page, shown every day until changed */
+  quran_revision?: QuranRevision
+  /** days (local dates) the revision page was read */
+  quran_revision_days?: string[]
 }
+
+export interface VocabWord { id: string; fr: string; en: string; added: string }
+export interface VocabDaily { day: string; ids: string[]; done: boolean }
+export interface QuranRevision { page: number; surah: number | null; juz: number | null; since: string }
 
 export interface LifeStep {
   id: string

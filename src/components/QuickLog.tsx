@@ -4,6 +4,7 @@ import { create } from 'zustand'
 import { Icon } from './Icon'
 import { Sheet, Stepper, Label } from './ui'
 import { QuranBrowser } from './Quran'
+import { RevisionCard, WordsCard } from './DailyReview'
 import { CARDIO, DAILY_ROUTINE, DURATIONS, FRENCH_ACTIVITIES, FRENCH_MINUTES, PROTEIN_FOODS, ROUTINE_TIP, SWIM, SWIM_HOW } from '../data/program'
 import { deleteEntry, markCarConnect, markLinkedinSent, logCardio, logFrench, logHike, logProtein, logQuranCheckin, logRoutine, logSwim, routineToday, startFocus, swimPlan } from '../lib/actions'
 import { QURAN_AMOUNTS, amountLabel, daysDone, isQuranCheckin, quranStreak } from '../lib/qurandaily'
@@ -11,7 +12,7 @@ import { proteinGoal, proteinOn } from '../lib/plan'
 import { useStore } from '../lib/store'
 import { fmtDur, localDate } from '../lib/time'
 
-export type SheetKey = 'cardio' | 'swim' | 'run' | 'squash' | 'hike' | 'routine' | 'quran' | 'quranDaily' | 'french' | 'focus' | 'protein' | 'carConnect'
+export type SheetKey = 'cardio' | 'swim' | 'run' | 'squash' | 'hike' | 'routine' | 'quran' | 'quranDaily' | 'french' | 'focus' | 'protein' | 'carConnect' | 'words' | 'quranRevision'
 
 export const useSheet = create<{ open: SheetKey | null }>(() => ({ open: null }))
 export const openSheet = (k: SheetKey) => useSheet.setState({ open: k })
@@ -274,7 +275,7 @@ function CardioPicker() {
 }
 
 const TITLES: Record<SheetKey, string> = {
-  cardio: 'What did you do?', swim: 'Log swim', run: 'Run', squash: 'Squash', hike: 'Log hike', routine: 'Posture reset', quran: 'Quran', quranDaily: 'Quran today', carConnect: 'Racing & exotic cars · LinkedIn', french: 'French', focus: 'Focus', protein: 'Protein',
+  cardio: 'What did you do?', swim: 'Log swim', run: 'Run', squash: 'Squash', hike: 'Log hike', routine: 'Posture reset', quran: 'Quran', quranDaily: 'Quran today', carConnect: 'Racing & exotic cars · LinkedIn', words: 'Words of the day', quranRevision: 'Quran revision', french: 'French', focus: 'Focus', protein: 'Protein',
 }
 
 export function QuickSheets() {
@@ -290,6 +291,8 @@ export function QuickSheets() {
       {open === 'quran' && <QuranSheet />}
       {open === 'quranDaily' && <QuranDailySheet />}
       {open === 'carConnect' && <CarConnectSheet />}
+      {open === 'words' && <WordsCard onDone={close} />}
+      {open === 'quranRevision' && <RevisionCard onDone={close} />}
       {open === 'french' && <FrenchSheet />}
       {open === 'focus' && <FocusSheet />}
     </Sheet>

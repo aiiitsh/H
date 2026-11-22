@@ -270,6 +270,38 @@ export function markMonthCheckin(d = localDate()) {
   if (!done.includes(d)) patchSettings({ month_checkins: [...done, d].slice(-36) })
 }
 
+/** Add a French word (French → English). */
+export function addWord(fr: string, en: string) {
+  const words = get().appState?.settings.vocab ?? []
+  const w = { id: newId(), fr: fr.trim(), en: en.trim(), added: localDate() }
+  patchSettings({ vocab: [...words, w] })
+  toast(`Added ${w.fr}`, () => patchSettings({ vocab: (get().appState?.settings.vocab ?? []).filter((x) => x.id !== w.id) }))
+}
+
+export function deleteWord(id: string) {
+  const words = get().appState?.settings.vocab ?? []
+  const w = words.find((x) => x.id === id)
+  if (!w) return
+  patchSettings({ vocab: words.filter((x) => x.id !== id) })
+  toast(`Deleted ${w.fr}`, () => patchSettings({ vocab: [...(get().appState?.settings.vocab ?? []), w] }))
+}
+
+/** Today's 5 words revised. */
+export function markWordsDone(t: { day: string; ids: string[] }) {
+  patchSettings({ vocab_daily: { day: t.day, ids: t.ids, done: true } })
+}
+
+/** New Quran revision page for this week. */
+export function setQuranRevision(r: { page: number; surah: number | null; juz: number | null }) {
+  patchSettings({ quran_revision: { ...r, since: localDate() } })
+}
+
+/** This week's revision page read today. */
+export function markRevisionRead(d = localDate()) {
+  const days = get().appState?.settings.quran_revision_days ?? []
+  if (!days.includes(d)) patchSettings({ quran_revision_days: [...days, d].slice(-120) })
+}
+
 export function markPlanRead(d = localDate()) {
   const reads = get().appState?.settings.plan_reads ?? []
   if (!reads.includes(d)) patchSettings({ plan_reads: [...reads, d].slice(-104) })

@@ -1,3 +1,4 @@
+import { pickWords, todayWords } from './vocab'
 import { diffSettings, mergeSettings } from './settingsmerge'
 import { amountSummary, daysDone, planReadStatus, quranStreak } from './qurandaily'
 import { buildMonthText, buildText, targetLines } from './export'
@@ -662,5 +663,33 @@ describe('Monday car-company LinkedIn round', () => {
     expect(dayPlan(base(), '2026-11-23').find((i) => i.key === 'car_connect')).toMatchObject({ done: false, sub: 'Every Monday · 1 companies', action: { kind: 'sheet', sheet: 'carConnect' } })
     expect(dayPlan(base(), '2026-11-24').find((i) => i.key === 'car_connect')).toBeUndefined()
     expect(dayPlan(base(['2026-11-23']), '2026-11-23').find((i) => i.key === 'car_connect')!.done).toBe(true)
+  })
+})
+
+describe('French words of the day', () => {
+  const W = (n: number) => Array.from({ length: n }, (_, k) => ({ id: `w${k}`, fr: `f${k}`, en: `e${k}`, added: '' }))
+  it('picks 5 in order and continues after the last one, wrapping', () => {
+    expect(pickWords(W(7))).toEqual(['w0', 'w1', 'w2', 'w3', 'w4'])
+    expect(pickWords(W(7), ['w0', 'w1', 'w2', 'w3', 'w4'])).toEqual(['w5', 'w6', 'w0', 'w1', 'w2'])
+    expect(pickWords(W(2))).toEqual(['w0', 'w1'])
+  })
+  it('keeps the same set all day, tops it up when words are added, new set next day', () => {
+    const d1 = todayWords(undefined, W(2), '2026-11-22')!
+    expect(d1.ids).toEqual(['w0', 'w1'])
+    expect(todayWords(d1, W(4), '2026-11-22')!.ids).toEqual(['w0', 'w1', 'w2', 'w3'])
+    expect(todayWords({ ...d1, done: true }, W(4), '2026-11-22')!.ids).toEqual(['w0', 'w1'])
+    expect(todayWords({ ...d1, done: true }, W(4), '2026-11-23')).toEqual({ day: '2026-11-23', ids: ['w2', 'w3', 'w0', 'w1'], done: false })
+    expect(todayWords(undefined, [], '2026-11-22')).toBeNull()
+  })
+  it('plan shows words and the Quran revision page, done once read', () => {
+    const base = (s: any): Data => ({ appState: { settings: s } as any, targets: {}, quran: [], logs: [], focus: [], workouts: [], sets: [], habits: [], reviews: [] })
+    const s = { vocab: W(3), quran_revision: { page: 4, surah: 2, juz: 1, since: '2026-11-22' } }
+    const p = dayPlan(base(s), '2026-11-22')
+    expect(p.find((i) => i.key === 'quran_revision')).toMatchObject({ sub: 'Page 4 · Al-Baqarah · Juz 1', done: false })
+    expect(p.find((i) => i.key === 'french_words')).toMatchObject({ done: false, sub: '3 words · 3 saved' })
+    const p2 = dayPlan(base({ ...s, quran_revision_days: ['2026-11-22'], vocab_daily: { day: '2026-11-22', ids: ['w0', 'w1', 'w2'], done: true } }), '2026-11-22')
+    expect(p2.find((i) => i.key === 'quran_revision')!.done).toBe(true)
+    expect(p2.find((i) => i.key === 'french_words')!.done).toBe(true)
+    expect(dayPlan(base({}), '2026-11-22').find((i) => i.key === 'french_words' || i.key === 'quran_revision')).toBeUndefined()
   })
 })
